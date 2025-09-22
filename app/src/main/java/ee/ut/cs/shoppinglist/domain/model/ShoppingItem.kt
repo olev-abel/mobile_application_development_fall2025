@@ -4,8 +4,10 @@ import java.util.UUID
 
 data class ShoppingItem(
     val id: String = UUID.randomUUID().toString(),
-    val name: String,
+    val name: Int,
     val quantity: Int,
     val category: ShoppingCategory,
-    val isBought: Boolean = false
+    val isBought: Boolean = false,
+    val image: Int? = null,
+    val isFavourite: Boolean = false
 )

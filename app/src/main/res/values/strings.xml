@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Shopping List</string>
+    <plurals name="milks">
+        <item quantity="one">Milk</item>
+        <item quantity="other">Milks</item>
+    </plurals>
+    <plurals name="apples">
+        <item quantity="one">Apple</item>
+        <item quantity="other">Apples</item>
+    </plurals>
+    <plurals name="bananas">
+        <item quantity="one">Banana</item>
+        <item quantity="other">Bananas</item>
+    </plurals>
 </resources>
