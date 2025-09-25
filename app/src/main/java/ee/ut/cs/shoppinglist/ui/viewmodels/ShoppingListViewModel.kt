@@ -11,6 +11,12 @@ import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+data class NewItemUi(
+    val name: String = "",
+    val quantity: Int = 1,
+    val category: ShoppingCategory = ShoppingCategory.MISC
+)
+
 
 class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
@@ -25,11 +31,23 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     private val _items = MutableStateFlow<List<ShoppingItem>>(emptyList())
     val items = _items.asStateFlow()
 
-    init {
-        _items.value = listOf(
-            ShoppingItem(name = R.plurals.milks, quantity = 1, category = ShoppingCategory.DAIRY, image = R.drawable.milk),
-            ShoppingItem(name = R.plurals.apples, quantity = 6, category = ShoppingCategory.FRUITS, image = R.drawable.apple)
+    var showAddDialog by mutableStateOf(false)
+    var newItem by mutableStateOf(NewItemUi())
+    var categories by mutableStateOf(ShoppingCategory.entries.toTypedArray())
+
+    fun openAdd() { showAddDialog = true; newItem = NewItemUi(category = categories.first()) }
+    fun closeAdd() { showAddDialog = false }
+    fun saveNewItem() {
+        if (newItem.name.isBlank() || newItem.quantity < 1) return
+        addItem(
+            ShoppingItem(
+                name = newItem.name,
+                quantity = newItem.quantity,
+                category = newItem.category, // or keep String
+                image = null,
+            )
         )
+        closeAdd()
     }
 
     fun addItem(item: ShoppingItem) {

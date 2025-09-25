@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
+import ee.ut.cs.shoppinglist.ui.components.AddItemDialog
 import ee.ut.cs.shoppinglist.ui.components.ShoppingListRow
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 
@@ -33,16 +34,9 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
-            viewModel.addItem(
-                ShoppingItem(
-                    name = R.plurals.bananas,
-                    quantity = 3,
-                    category = ShoppingCategory.FRUITS,
-                    image = R.drawable.banana
-                )
-            )
+            viewModel.openAdd()
         }) { Icon(Icons.Default.Add, "Add") }
-    } ) { paddingValues ->
+    }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             Row(
                 Modifier
@@ -50,7 +44,7 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = { viewModel.toggleViewMode(ViewMode.All) })    { Text("All") }
+                Button(onClick = { viewModel.toggleViewMode(ViewMode.All) }) { Text("All") }
                 Button(onClick = { viewModel.toggleViewMode(ViewMode.ByCategory) }) { Text("By Category") }
             }
 
@@ -58,10 +52,12 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
                 ViewMode.All -> AllItemsList(viewModel)
                 ViewMode.ByCategory -> CategoryList(viewModel)
             }
+            AddItemDialog(viewModel)
         }
     }
 
 }
+
 enum class ViewMode { All, ByCategory }
 
 
@@ -72,7 +68,10 @@ fun AllItemsList(viewModel: ShoppingListViewModel) {
         modifier = Modifier.fillMaxSize()
     ) {
         items(items, key = { it.id }) { item ->
-            ShoppingListRow(item = item,onCheckChanged = { viewModel.toggleBought(item) })
+            ShoppingListRow(
+                item = item,
+                onCheckChanged = { viewModel.toggleBought(item) },
+                onRemove = { viewModel.removeItem(item) })
         }
     }
 }
@@ -94,7 +93,10 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
                 )
             }
             items(itemsInCategory, key = { it.id }) { item ->
-                ShoppingListRow(item = item,onCheckChanged = { viewModel.toggleBought(item) })
+                ShoppingListRow(
+                    item = item,
+                    onCheckChanged = { viewModel.toggleBought(item) },
+                    onRemove = { viewModel.removeItem(item) })
             }
         }
     }
