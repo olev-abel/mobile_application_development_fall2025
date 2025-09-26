@@ -22,16 +22,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.R
-import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
-import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
-import ee.ut.cs.shoppinglist.ui.components.AddItemDialog
-import ee.ut.cs.shoppinglist.ui.components.ShoppingListRow
+import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.AddItemDialog
+import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.ShoppingListRow
 import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 

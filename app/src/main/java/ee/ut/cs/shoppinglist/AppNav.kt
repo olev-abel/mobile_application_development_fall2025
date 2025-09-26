@@ -14,18 +14,18 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 @Composable
 fun AppNav(viewModel: ShoppingListViewModel) {
     val navController = rememberNavController()
-    NavHost(navController, startDestination = "list") {
-        composable("list") {
+    NavHost(navController, startDestination = Screen.ListScreen.route) {
+        composable(Screen.ListScreen.route) {
             ShoppingListScreen(
                 viewModel = viewModel,
-                onOpenDetail = { id -> navController.navigate("detail/$id") }
+                onOpenDetail = { id -> navController.navigate(Screen.ItemDetailScreen.passId(id)) }
             )
         }
         composable(
-            route = "detail/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.StringType })
+            route = Screen.ItemDetailScreen.route,
+            arguments = listOf(navArgument(ITEM_DETAIL_SCREEN_ID) { type = NavType.StringType })
         ) { backStackEntry ->
-            val id = backStackEntry.arguments?.getString("id")!!
+            val id = backStackEntry.arguments?.getString(ITEM_DETAIL_SCREEN_ID)!!
             DetailScreen(id = id, onBack = { navController.popBackStack() }, viewModel = viewModel)
         }
     }

@@ -1,4 +1,4 @@
-package ee.ut.cs.shoppinglist.ui.components
+package ee.ut.cs.shoppinglist.ui.components.shoppingitemlist
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
