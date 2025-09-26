@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class NewItemUi(
-    val name: String = "",
-    val quantity: String = "",
+    val name: String = "This is item",
+    val quantity: String = "1",
     val category: ShoppingCategory = ShoppingCategory.MISC
 )
 
@@ -41,7 +41,7 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     var categories by mutableStateOf(ShoppingCategory.entries.toTypedArray())
 
     fun openAdd() {
-        showAddDialog = true; newItem = NewItemUi(category = categories.first())
+        showAddDialog = true; newItem = NewItemUi()
     }
 
     fun closeAdd() {

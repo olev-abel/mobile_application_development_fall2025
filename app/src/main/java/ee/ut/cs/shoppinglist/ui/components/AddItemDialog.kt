@@ -3,12 +3,16 @@ package ee.ut.cs.shoppinglist.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -20,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
@@ -29,8 +34,8 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 fun AddItemDialog(vm: ShoppingListViewModel) {
     if (!vm.showAddDialog) return
 
-    var name by remember { mutableStateOf("") }
-    var qtyText by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf(vm.newItem.name) }
+    var qtyText by remember { mutableStateOf(vm.newItem.quantity) }
 
     val nameError = name.isBlank()
     val qty = qtyText.toIntOrNull()
@@ -59,6 +64,9 @@ fun AddItemDialog(vm: ShoppingListViewModel) {
                     },
                     label = { Text(stringResource(R.string.item_name)) },
                     isError = nameError,
+                    trailingIcon = {
+                        if (qtyError) Icon(Icons.Default.Warning, contentDescription = null)
+                    },
                     supportingText = {
                         if (nameError) Text(stringResource(R.string.item_name_error))
                     },
@@ -69,6 +77,10 @@ fun AddItemDialog(vm: ShoppingListViewModel) {
                     onValueChange = {
                         vm.newItem = vm.newItem.copy(quantity = it)
                         qtyText = it
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    trailingIcon = {
+                        if (qtyError) Icon(Icons.Default.Warning, contentDescription = null)
                     },
                     label = { Text(stringResource(R.string.item_quantity)) },
                     singleLine = true,

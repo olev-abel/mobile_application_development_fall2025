@@ -78,7 +78,7 @@ fun ShoppingListRow(
     val swipeToDismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
             if (it == SwipeToDismissBoxValue.EndToStart) onRemove(item)
-            it != SwipeToDismissBoxValue.StartToEnd
+            true
         }
     )
     SwipeToDismissBox(
