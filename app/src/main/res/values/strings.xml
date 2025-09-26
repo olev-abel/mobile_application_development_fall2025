@@ -1,15 +1,13 @@
 <resources>
     <string name="app_name">Shopping List</string>
-    <plurals name="milks">
-        <item quantity="one">Milk</item>
-        <item quantity="other">Milks</item>
-    </plurals>
-    <plurals name="apples">
-        <item quantity="one">Apple</item>
-        <item quantity="other">Apples</item>
-    </plurals>
-    <plurals name="bananas">
-        <item quantity="one">Banana</item>
-        <item quantity="other">Bananas</item>
-    </plurals>
+    <string name="item_name">Name</string>
+    <string name="item_name_error">Name is required</string>
+    <string name="item_quantity">Quantity</string>
+    <string name="item_quantity_error">Enter a number ≥ 1</string>
+    <string name="item_category">Category</string>
+    <string name="btn_add">Add</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_category_all">All</string>
+    <string name="btn_category_by_category">By Category</string>
+    <string name="title_new_item_dialog">New Item</string>
 </resources>

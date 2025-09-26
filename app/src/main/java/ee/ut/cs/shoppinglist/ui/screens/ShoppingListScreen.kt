@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
@@ -35,7 +36,7 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
             viewModel.openAdd()
-        }) { Icon(Icons.Default.Add, "Add") }
+        }) { Icon(Icons.Default.Add, stringResource(R.string.btn_add)) }
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             Row(
@@ -44,8 +45,10 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
                     .padding(8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Button(onClick = { viewModel.toggleViewMode(ViewMode.All) }) { Text("All") }
-                Button(onClick = { viewModel.toggleViewMode(ViewMode.ByCategory) }) { Text("By Category") }
+                Button(onClick = { viewModel.toggleViewMode(ViewMode.All) }
+                ) { Text(stringResource(R.string.btn_category_all)) }
+                Button(onClick = { viewModel.toggleViewMode(ViewMode.ByCategory) }
+                ) { Text(stringResource(R.string.btn_category_by_category)) }
             }
 
             when (viewModel.viewMode) {

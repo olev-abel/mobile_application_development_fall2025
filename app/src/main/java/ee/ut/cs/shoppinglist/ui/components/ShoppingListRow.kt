@@ -166,15 +166,6 @@ fun ShoppingListRow(
                 checked = item.isBought,
                 onCheckedChange = onCheckChanged
             )
-
-            if (item.isFavourite) {
-                Spacer(Modifier.width(gapSm))
-                Icon(
-                    imageVector = Icons.Default.Favorite,
-                    contentDescription = "Favorite",
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
         }
     }
 

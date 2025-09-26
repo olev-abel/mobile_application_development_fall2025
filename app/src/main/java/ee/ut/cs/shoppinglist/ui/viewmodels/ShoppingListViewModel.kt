@@ -11,16 +11,20 @@ import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+
 data class NewItemUi(
     val name: String = "",
-    val quantity: Int = 1,
+    val quantity: String = "",
     val category: ShoppingCategory = ShoppingCategory.MISC
 )
 
 
 class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
-    private companion object { const val KEY_VIEW = "view_mode" }
+    private companion object {
+        const val KEY_VIEW = "view_mode"
+    }
+
     var viewMode by mutableStateOf(savedStateHandle[KEY_VIEW] ?: ViewMode.All)
         private set
 
@@ -28,6 +32,7 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
         viewMode = mode
         savedStateHandle[KEY_VIEW] = mode
     }
+
     private val _items = MutableStateFlow<List<ShoppingItem>>(emptyList())
     val items = _items.asStateFlow()
 
@@ -35,14 +40,22 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     var newItem by mutableStateOf(NewItemUi())
     var categories by mutableStateOf(ShoppingCategory.entries.toTypedArray())
 
-    fun openAdd() { showAddDialog = true; newItem = NewItemUi(category = categories.first()) }
-    fun closeAdd() { showAddDialog = false }
+    fun openAdd() {
+        showAddDialog = true; newItem = NewItemUi(category = categories.first())
+    }
+
+    fun closeAdd() {
+        showAddDialog = false
+    }
+
     fun saveNewItem() {
-        if (newItem.name.isBlank() || newItem.quantity < 1) return
+        if (newItem.name.isBlank()
+            || newItem.quantity.isBlank()
+            || newItem.quantity.toIntOrNull() == null) return
         addItem(
             ShoppingItem(
                 name = newItem.name,
-                quantity = newItem.quantity,
+                quantity = newItem.quantity.toInt(),
                 category = newItem.category, // or keep String
                 image = null,
             )

@@ -9,5 +9,4 @@ data class ShoppingItem(
     val category: ShoppingCategory,
     val isBought: Boolean = false,
     val image: Int? = null,
-    val isFavourite: Boolean = false
 )
