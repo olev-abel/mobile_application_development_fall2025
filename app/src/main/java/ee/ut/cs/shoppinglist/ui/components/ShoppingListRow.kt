@@ -2,6 +2,7 @@ package ee.ut.cs.shoppinglist.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -34,6 +35,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
@@ -67,7 +69,8 @@ fun ShoppingListRow(
     item: ShoppingItem,
     modifier: Modifier = Modifier,
     onCheckChanged: (Boolean) -> Unit,
-    onRemove: (ShoppingItem) -> Unit
+    onRemove: (ShoppingItem) -> Unit,
+    onClick: (ShoppingItem) -> Unit
 ) {
     val rowPadding = dimensionResource(R.dimen.row_padding)
     val avatarSize = dimensionResource(R.dimen.avatar_size)
@@ -90,7 +93,7 @@ fun ShoppingListRow(
                 SwipeToDismissBoxValue.EndToStart -> {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Remove item",
+                        contentDescription = stringResource(R.string.cont_dsc_remove_item),
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.Red)
@@ -106,7 +109,8 @@ fun ShoppingListRow(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(rowPadding),
+                .padding(rowPadding)
+                .clickable { onClick(item) },
             verticalAlignment = Alignment.CenterVertically
         ) {
             if (item.image != null) {

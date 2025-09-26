@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.ui.screens.ShoppingListScreen
 import ee.ut.cs.shoppinglist.ui.theme.ShoppingListTheme
+import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 
 
@@ -20,12 +21,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val vm: ShoppingListViewModel = viewModel()
+
             ShoppingListTheme {
-                Scaffold { padding ->
-                    Box(modifier = Modifier.padding(padding)) {
-                        ShoppingListScreen(viewModel = vm)
-                    }
-                }
+                AppNav(vm)
 
             }
         }

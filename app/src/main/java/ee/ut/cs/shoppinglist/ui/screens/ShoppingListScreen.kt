@@ -10,35 +10,61 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.components.AddItemDialog
 import ee.ut.cs.shoppinglist.ui.components.ShoppingListRow
+import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+
+
+@Composable
+fun SearchBar(vm: ShoppingListViewModel) {
+    OutlinedTextField(
+        value = vm.query,
+        onValueChange = { vm.query = it },
+        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+        placeholder = { Text("Search items") },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        singleLine = true
+    )
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
+fun ShoppingListScreen(
+    viewModel: ShoppingListViewModel,
+    onOpenDetail: (String) -> Unit
+) {
+    val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
-            viewModel.openAdd()
+            addVm.openAdd()
         }) { Icon(Icons.Default.Add, stringResource(R.string.btn_add)) }
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
+            SearchBar(viewModel)
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -52,10 +78,12 @@ fun ShoppingListScreen(viewModel: ShoppingListViewModel) {
             }
 
             when (viewModel.viewMode) {
-                ViewMode.All -> AllItemsList(viewModel)
-                ViewMode.ByCategory -> CategoryList(viewModel)
+                ViewMode.All -> AllItemsList(viewModel, onOpenDetail)
+                ViewMode.ByCategory -> CategoryList(viewModel, onOpenDetail)
             }
-            AddItemDialog(viewModel)
+            AddItemDialog(addVm, {
+                viewModel.saveNewItem(addVm.newItem)
+            })
         }
     }
 
@@ -65,24 +93,27 @@ enum class ViewMode { All, ByCategory }
 
 
 @Composable
-fun AllItemsList(viewModel: ShoppingListViewModel) {
+fun AllItemsList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
     val items by viewModel.items.collectAsState()
+    val filteredItems = items.filter { it.name.contains(viewModel.query) }
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
-        items(items, key = { it.id }) { item ->
+        items(filteredItems, key = { it.id }) { item ->
             ShoppingListRow(
                 item = item,
                 onCheckChanged = { viewModel.toggleBought(item) },
-                onRemove = { viewModel.removeItem(item) })
+                onRemove = { viewModel.removeItem(item) },
+                onClick = {item -> onOpenDetail(item.id)})
         }
     }
 }
 
 @Composable
-fun CategoryList(viewModel: ShoppingListViewModel) {
+fun CategoryList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
     val items by viewModel.items.collectAsState()
-    val grouped = items.groupBy { it.category }
+    val filteredItems = items.filter { it.name.contains(viewModel.query) }
+    val grouped = filteredItems.groupBy { it.category }
 
     LazyColumn(Modifier.fillMaxSize()) {
         grouped.forEach { (category, itemsInCategory) ->
@@ -99,7 +130,8 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
                 ShoppingListRow(
                     item = item,
                     onCheckChanged = { viewModel.toggleBought(item) },
-                    onRemove = { viewModel.removeItem(item) })
+                    onRemove = { viewModel.removeItem(item) },
+                    onClick = {item -> onOpenDetail(item.id)})
             }
         }
     }

@@ -27,11 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddItemDialog(vm: ShoppingListViewModel) {
+fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
     if (!vm.showAddDialog) return
 
     var name by remember { mutableStateOf(vm.newItem.name) }
@@ -48,7 +48,10 @@ fun AddItemDialog(vm: ShoppingListViewModel) {
         confirmButton = {
             TextButton(
                 enabled = !nameError && !qtyError,
-                onClick = { vm.saveNewItem() }) { Text(stringResource(R.string.btn_add)) }
+                onClick = {
+                    onAdd()
+                    vm.closeAdd()
+                }) { Text(stringResource(R.string.btn_add)) }
         },
         dismissButton = {
             TextButton(onClick = { vm.closeAdd() }) { Text(stringResource(R.string.btn_cancel)) }
