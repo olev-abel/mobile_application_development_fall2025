@@ -14,13 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 
 @Composable
 fun ItemDetailsExternalSearchButton(item: ShoppingItem) {
-    // External info (open browser)
     val context = LocalContext.current
     Button(
         onClick = {
@@ -38,7 +39,7 @@ fun ItemDetailsExternalSearchButton(item: ShoppingItem) {
 
             )
         Spacer(Modifier.width(8.dp))
-        Text("Search on Google")
+        Text(stringResource(R.string.btn_search_on_google))
     }
 }
 private const val GOOGLE_SEARCH_BASE_URL = "https://www.google.com/search?q="

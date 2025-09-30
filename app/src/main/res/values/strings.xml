@@ -11,4 +11,5 @@
     <string name="btn_category_by_category">By Category</string>
     <string name="title_new_item_dialog">New Item</string>
     <string name="cont_dsc_remove_item">Remove Item</string>
+    <string name="btn_search_on_google">Search on Google</string>
 </resources>

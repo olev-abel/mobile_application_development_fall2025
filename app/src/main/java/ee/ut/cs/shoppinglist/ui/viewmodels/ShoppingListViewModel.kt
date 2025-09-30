@@ -33,7 +33,6 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
 
     fun saveNewItem(newItemUi: NewItemUi) {
         if (newItemUi.name.isBlank()
-            || newItemUi.quantity.isBlank()
             || newItemUi.quantity.toIntOrNull() == null) return
         addItem(
             ShoppingItem(

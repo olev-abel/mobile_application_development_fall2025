@@ -17,7 +17,7 @@ class AddItemViewModel : ViewModel() {
 
     var showAddDialog by mutableStateOf(false)
     var newItem by mutableStateOf(NewItemUi())
-    var categories by mutableStateOf(ShoppingCategory.entries.toTypedArray())
+    var categories by mutableStateOf(ShoppingCategory.entries)
 
     fun openAdd() {
         showAddDialog = true
