@@ -1,29 +1,33 @@
 package ee.ut.cs.shoppinglist.ui.viewmodels
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlin.collections.filter
 
 
 class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
 
     private companion object {
         const val KEY_VIEW = "view_mode"
+        const val KEY_SEARCH_QUERY = "search_query"
     }
 
-    var query by mutableStateOf("")
 
-    var viewMode by mutableStateOf(savedStateHandle[KEY_VIEW] ?: ViewMode.All)
-        private set
+    val query = savedStateHandle.getStateFlow(KEY_SEARCH_QUERY, "")
+
+    val viewMode = savedStateHandle.getStateFlow(KEY_VIEW, ViewMode.All)
 
     fun toggleViewMode(mode: ViewMode) {
-        viewMode = mode
         savedStateHandle[KEY_VIEW] = mode
     }
 
@@ -31,9 +35,17 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     val items = _items.asStateFlow()
 
 
+    val filteredItems = combine(flow = query, flow2 = _items) { queryString, combinedItems ->
+        combinedItems.filter { it.name.contains(queryString) }
+    }.stateIn(
+        viewModelScope,
+        SharingStarted.WhileSubscribed(), _items.value
+    )
+
     fun saveNewItem(newItemUi: NewItemUi) {
         if (newItemUi.name.isBlank()
-            || newItemUi.quantity.toIntOrNull() == null) return
+            || newItemUi.quantity.toIntOrNull() == null
+        ) return
         addItem(
             ShoppingItem(
                 name = newItemUi.name,
@@ -44,16 +56,26 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
         )
     }
 
+    fun updateSearchQuery(newQuery: String) {
+        savedStateHandle[KEY_SEARCH_QUERY] = newQuery
+    }
+
     fun addItem(item: ShoppingItem) {
-        _items.value = _items.value + item
+        _items.update {
+            it + item
+        }
     }
 
     fun removeItem(item: ShoppingItem) {
-        _items.value = _items.value - item
+        _items.update {
+            it - item
+        }
     }
 
     fun updateItem(updated: ShoppingItem) {
-        _items.value = _items.value.map { if (it.id == updated.id) updated else it }
+        _items.update { items ->
+            items.map { if (it.id == updated.id) updated else it }
+        }
     }
 
     fun toggleBought(item: ShoppingItem) {
@@ -61,6 +83,7 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
     }
 
     fun itemById(id: String): ShoppingItem {
-        return _items.value.first { it.id == id }
+        return items.value.first { it.id == id }
     }
+
 }
