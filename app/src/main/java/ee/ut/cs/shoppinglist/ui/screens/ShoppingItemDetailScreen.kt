@@ -26,14 +26,14 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(id: String, onBack: () -> Unit, viewModel: ShoppingListViewModel) {
+fun DetailScreen(id: String, viewModel: ShoppingListViewModel) {
     val item = viewModel.itemById(id)
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(item.name) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {viewModel.navigateBack()}) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"

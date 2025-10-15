@@ -52,8 +52,7 @@ fun SearchBar(vm: ShoppingListViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
-    viewModel: ShoppingListViewModel,
-    onOpenDetail: (String) -> Unit
+    viewModel: ShoppingListViewModel
 ) {
 
     val viewMode by viewModel.viewMode.collectAsState()
@@ -78,8 +77,8 @@ fun ShoppingListScreen(
             }
 
             when (viewMode) {
-                ViewMode.All -> AllItemsList(viewModel, onOpenDetail)
-                ViewMode.ByCategory -> CategoryList(viewModel, onOpenDetail)
+                ViewMode.All -> AllItemsList(viewModel)
+                ViewMode.ByCategory -> CategoryList(viewModel)
             }
             AddItemDialog(addVm, {
                 viewModel.saveNewItem(addVm.newItem.value)
@@ -93,7 +92,7 @@ enum class ViewMode { All, ByCategory }
 
 
 @Composable
-fun AllItemsList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
+fun AllItemsList(viewModel: ShoppingListViewModel) {
     val filteredItems by viewModel.filteredItems.collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -103,13 +102,13 @@ fun AllItemsList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Uni
                 item = item,
                 onCheckChanged = { viewModel.toggleBought(item) },
                 onRemove = { viewModel.removeItem(item) },
-                onClick = {item -> onOpenDetail(item.id)})
+                onClick = {item -> viewModel.openItemDetail(item.id)})
         }
     }
 }
 
 @Composable
-fun CategoryList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
+fun CategoryList(viewModel: ShoppingListViewModel) {
     val filteredItems by viewModel.filteredItems.collectAsState()
     val grouped = filteredItems.groupBy { it.category }
 
@@ -129,7 +128,7 @@ fun CategoryList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Uni
                     item = item,
                     onCheckChanged = { viewModel.toggleBought(item) },
                     onRemove = { viewModel.removeItem(item) },
-                    onClick = {item -> onOpenDetail(item.id)})
+                    onClick = {item -> viewModel.openItemDetail(item.id)})
             }
         }
     }
