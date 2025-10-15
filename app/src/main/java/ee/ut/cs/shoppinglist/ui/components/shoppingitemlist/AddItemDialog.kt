@@ -18,6 +18,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,27 +28,31 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
+import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
 import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
     if (!vm.showAddDialog) return
-
-    var name by remember { mutableStateOf(vm.newItem.name) }
-    var qtyText by remember { mutableStateOf(vm.newItem.quantity) }
-
-    val nameError = name.isBlank()
-    val qty = qtyText.toIntOrNull()
-    val qtyError = qty == null || qty < 1
+    val uiState by vm.newItem.collectAsState()
 
     var expanded by remember { mutableStateOf(false) }
+    var nameTapped by remember { mutableStateOf(false) }
+    var quantityTapped by remember { mutableStateOf(false) }
+
+    val nameError = nameTapped && uiState.name.isBlank()
+    val qty = uiState.quantity.toIntOrNull()
+    val qtyError = quantityTapped && (qty == null || qty < 1)
+
+    val addEnabled = !nameError && !qtyError
+
 
     AlertDialog(
         onDismissRequest = { vm.closeAdd() },
         confirmButton = {
             TextButton(
-                enabled = !nameError && !qtyError,
+                enabled = addEnabled,
                 onClick = {
                     onAdd()
                     vm.closeAdd()
@@ -60,15 +65,15 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 OutlinedTextField(
-                    value = vm.newItem.name,
+                    value = uiState.name,
                     onValueChange = {
-                        name = it
-                        vm.newItem = vm.newItem.copy(name = it)
+                        vm.updateName(it)
+                        nameTapped = true
                     },
                     label = { Text(stringResource(R.string.item_name)) },
                     isError = nameError,
                     trailingIcon = {
-                        if (qtyError) Icon(Icons.Default.Warning, contentDescription = null)
+                        if (nameError) Icon(Icons.Default.Warning, contentDescription = null)
                     },
                     supportingText = {
                         if (nameError) Text(stringResource(R.string.item_name_error))
@@ -76,10 +81,10 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                     singleLine = true
                 )
                 OutlinedTextField(
-                    value = vm.newItem.quantity,
+                    value = uiState.quantity,
                     onValueChange = {
-                        vm.newItem = vm.newItem.copy(quantity = it)
-                        qtyText = it
+                        vm.updateQuantity(it)
+                        quantityTapped = true
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     trailingIcon = {
@@ -100,7 +105,7 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = vm.newItem.category.toString(),
+                        value = uiState.category.toString(),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.item_category)) },
@@ -114,11 +119,11 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                         onDismissRequest = { expanded = false },
                         modifier = Modifier.exposedDropdownSize()
                     ) {
-                        vm.categories.forEach { category ->
+                        ShoppingCategory.entries.forEach { category ->
                             DropdownMenuItem(
                                 text = { Text(category.toString()) },
                                 onClick = {
-                                    vm.newItem = vm.newItem.copy(category = category)
+                                    vm.updateCategory(category)
                                     expanded = false
                                 },
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding

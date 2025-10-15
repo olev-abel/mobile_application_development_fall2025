@@ -5,35 +5,49 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import ee.ut.cs.shoppinglist.NavCoordinator
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 
 
-class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : ViewModel() {
+class ShoppingListViewModel(
+    private val savedStateHandle: SavedStateHandle,
+    private val navCoordinator: NavCoordinator
+) : ViewModel() {
 
     private companion object {
         const val KEY_VIEW = "view_mode"
+        const val KEY_SEARCH_QUERY = "search_query"
     }
 
-    var query by mutableStateOf("")
-
-    var viewMode by mutableStateOf(savedStateHandle[KEY_VIEW] ?: ViewMode.All)
-        private set
+    val query = savedStateHandle.getStateFlow(KEY_SEARCH_QUERY, "")
+    val viewMode = savedStateHandle.getStateFlow(KEY_VIEW, ViewMode.All)
 
     fun toggleViewMode(mode: ViewMode) {
-        viewMode = mode
         savedStateHandle[KEY_VIEW] = mode
     }
 
     private val _items = MutableStateFlow<List<ShoppingItem>>(emptyList())
     val items = _items.asStateFlow()
 
+    val filteredItems = combine(query, _items) { queryString, combinedItems ->
+        combinedItems.filter { it.name.contains(queryString) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), _items.value)
+
+    fun updateSearchQuery(newQuery: String) {
+        savedStateHandle[KEY_SEARCH_QUERY] = newQuery
+    }
 
     fun saveNewItem(newItemUi: NewItemUi) {
         if (newItemUi.name.isBlank()
-            || newItemUi.quantity.toIntOrNull() == null) return
+            || newItemUi.quantity.toIntOrNull() == null
+        ) return
         addItem(
             ShoppingItem(
                 name = newItemUi.name,
@@ -62,5 +76,9 @@ class ShoppingListViewModel(private val savedStateHandle: SavedStateHandle) : Vi
 
     fun itemById(id: String): ShoppingItem {
         return _items.value.first { it.id == id }
+    }
+
+    fun openDetailScreen(id: String) {
+        navCoordinator.toDetailScreen(id)
     }
 }

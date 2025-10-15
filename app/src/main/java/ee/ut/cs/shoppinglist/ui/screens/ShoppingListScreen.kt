@@ -36,8 +36,8 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 @Composable
 fun SearchBar(vm: ShoppingListViewModel) {
     OutlinedTextField(
-        value = vm.query,
-        onValueChange = { vm.query = it },
+        value = vm.query.collectAsState().value,
+        onValueChange = { vm.updateSearchQuery(it) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         placeholder = { Text("Search items") },
         modifier = Modifier
@@ -51,9 +51,8 @@ fun SearchBar(vm: ShoppingListViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
-    viewModel: ShoppingListViewModel,
-    onOpenDetail: (String) -> Unit
-) {
+    viewModel: ShoppingListViewModel) {
+    val viewMode by viewModel.viewMode.collectAsState()
     val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = {
@@ -74,12 +73,12 @@ fun ShoppingListScreen(
                 ) { Text(stringResource(R.string.btn_category_by_category)) }
             }
 
-            when (viewModel.viewMode) {
-                ViewMode.All -> AllItemsList(viewModel, onOpenDetail)
-                ViewMode.ByCategory -> CategoryList(viewModel, onOpenDetail)
+            when (viewMode) {
+                ViewMode.All -> AllItemsList(viewModel)
+                ViewMode.ByCategory -> CategoryList(viewModel)
             }
             AddItemDialog(addVm, {
-                viewModel.saveNewItem(addVm.newItem)
+                viewModel.saveNewItem(addVm.newItem.value)
             })
         }
     }
@@ -90,9 +89,8 @@ enum class ViewMode { All, ByCategory }
 
 
 @Composable
-fun AllItemsList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
-    val items by viewModel.items.collectAsState()
-    val filteredItems = items.filter { it.name.contains(viewModel.query) }
+fun AllItemsList(viewModel: ShoppingListViewModel,) {
+    val filteredItems by viewModel.filteredItems.collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -101,15 +99,14 @@ fun AllItemsList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Uni
                 item = item,
                 onCheckChanged = { viewModel.toggleBought(item) },
                 onRemove = { viewModel.removeItem(item) },
-                onClick = {item -> onOpenDetail(item.id)})
+                onClick = {item ->viewModel.openDetailScreen(item.id)})
         }
     }
 }
 
 @Composable
-fun CategoryList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Unit) {
-    val items by viewModel.items.collectAsState()
-    val filteredItems = items.filter { it.name.contains(viewModel.query) }
+fun CategoryList(viewModel: ShoppingListViewModel) {
+    val filteredItems by viewModel.filteredItems.collectAsState()
     val grouped = filteredItems.groupBy { it.category }
 
     LazyColumn(Modifier.fillMaxSize()) {
@@ -128,7 +125,7 @@ fun CategoryList(viewModel: ShoppingListViewModel, onOpenDetail: (String) -> Uni
                     item = item,
                     onCheckChanged = { viewModel.toggleBought(item) },
                     onRemove = { viewModel.removeItem(item) },
-                    onClick = {item -> onOpenDetail(item.id)})
+                    onClick = {item -> viewModel.openDetailScreen(item.id)})
             }
         }
     }

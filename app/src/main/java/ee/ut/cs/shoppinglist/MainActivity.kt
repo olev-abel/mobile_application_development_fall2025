@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.ui.screens.ShoppingListScreen
@@ -19,11 +21,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val app = (application as ShoppingListApplication)
         setContent {
-            val vm: ShoppingListViewModel = viewModel()
+
 
             ShoppingListTheme {
-                AppNav(vm)
+                AppNav(app.navCoordinator)
 
             }
         }
