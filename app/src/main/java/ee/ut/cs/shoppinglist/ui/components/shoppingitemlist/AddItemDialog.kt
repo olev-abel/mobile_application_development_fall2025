@@ -27,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
 import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
@@ -36,23 +35,24 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
 @Composable
 fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
     if (!vm.showAddDialog) return
-
     val uiState by vm.newItem.collectAsState()
 
-    val qty = uiState.quantity.toIntOrNull()
-
-    var nameTapped by remember { mutableStateOf(false) }
-    var qtyTapped by remember { mutableStateOf(false) }
     var expanded by remember { mutableStateOf(false) }
+    var nameTapped by remember { mutableStateOf(false) }
+    var quantityTapped by remember { mutableStateOf(false) }
 
-    val nameError = uiState.name.isBlank() && nameTapped
-    val qtyError = qtyTapped && (qty == null || qty < 1)
+    val nameError = nameTapped && uiState.name.isBlank()
+    val qty = uiState.quantity.toIntOrNull()
+    val qtyError = quantityTapped && (qty == null || qty < 1)
+
+    val addEnabled = !nameError && !qtyError
+
 
     AlertDialog(
         onDismissRequest = { vm.closeAdd() },
         confirmButton = {
             TextButton(
-                enabled = !nameError && !qtyError,
+                enabled = addEnabled,
                 onClick = {
                     onAdd()
                     vm.closeAdd()
@@ -84,7 +84,7 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                     value = uiState.quantity,
                     onValueChange = {
                         vm.updateQuantity(it)
-                        qtyTapped = true
+                        quantityTapped = true
                     },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     trailingIcon = {
@@ -123,7 +123,7 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                             DropdownMenuItem(
                                 text = { Text(category.toString()) },
                                 onClick = {
-                                    vm.updateCategories(category)
+                                    vm.updateCategory(category)
                                     expanded = false
                                 },
                                 contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding

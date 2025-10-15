@@ -35,9 +35,8 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 
 @Composable
 fun SearchBar(vm: ShoppingListViewModel) {
-    val searchQuery = vm.query.collectAsState().value
     OutlinedTextField(
-        value = searchQuery,
+        value = vm.query.collectAsState().value,
         onValueChange = { vm.updateSearchQuery(it) },
         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
         placeholder = { Text("Search items") },
@@ -52,9 +51,7 @@ fun SearchBar(vm: ShoppingListViewModel) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
-    viewModel: ShoppingListViewModel
-) {
-
+    viewModel: ShoppingListViewModel) {
     val viewMode by viewModel.viewMode.collectAsState()
     val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
@@ -92,7 +89,7 @@ enum class ViewMode { All, ByCategory }
 
 
 @Composable
-fun AllItemsList(viewModel: ShoppingListViewModel) {
+fun AllItemsList(viewModel: ShoppingListViewModel,) {
     val filteredItems by viewModel.filteredItems.collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -102,7 +99,7 @@ fun AllItemsList(viewModel: ShoppingListViewModel) {
                 item = item,
                 onCheckChanged = { viewModel.toggleBought(item) },
                 onRemove = { viewModel.removeItem(item) },
-                onClick = {item -> viewModel.openItemDetail(item.id)})
+                onClick = {item ->viewModel.openDetailScreen(item.id)})
         }
     }
 }
@@ -128,7 +125,7 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
                     item = item,
                     onCheckChanged = { viewModel.toggleBought(item) },
                     onRemove = { viewModel.removeItem(item) },
-                    onClick = {item -> viewModel.openItemDetail(item.id)})
+                    onClick = {item -> viewModel.openDetailScreen(item.id)})
             }
         }
     }

@@ -16,24 +16,26 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsExternalSearchButton
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsFacts
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsHeaderImage
+import ee.ut.cs.shoppinglist.ui.viewmodels.ItemDetailsViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(id: String, viewModel: ShoppingListViewModel) {
-    val item = viewModel.itemById(id)
+fun DetailScreen(id: String, viewModel: ItemDetailsViewModel) {
+    val item = viewModel.shoppingItem.collectAsState().value
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(item.name) },
                 navigationIcon = {
-                    IconButton(onClick = {viewModel.navigateBack()}) {
+                    IconButton(onClick = { viewModel.onBack() }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
