@@ -27,6 +27,7 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
+import kotlinx.coroutines.launch
 
 
 @Composable
@@ -76,12 +78,8 @@ fun ShoppingListRow(
     val gapSm = dimensionResource(R.dimen.spacing_sm)
     val gapMd = dimensionResource(R.dimen.spacing_md)
 
-    val swipeToDismissState = rememberSwipeToDismissBoxState(
-        confirmValueChange = {
-            if (it == SwipeToDismissBoxValue.EndToStart) onRemove(item)
-            true
-        }
-    )
+    val swipeToDismissState = rememberSwipeToDismissBoxState()
+    val scope = rememberCoroutineScope()
     SwipeToDismissBox(
         state = swipeToDismissState,
         modifier = Modifier.fillMaxSize(),
@@ -101,6 +99,18 @@ fun ShoppingListRow(
                     )
                 }
                 SwipeToDismissBoxValue.Settled -> {}
+            }
+        },
+        onDismiss = { direction ->
+            when (direction) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onRemove(item)
+                }
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    // revert right-swipe (do not remove)
+                    scope.launch { swipeToDismissState.reset() }
+                }
+                else -> { /* no-op */ }
             }
         }
     ) {
