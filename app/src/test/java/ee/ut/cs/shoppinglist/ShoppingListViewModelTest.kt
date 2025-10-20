@@ -2,7 +2,7 @@ package ee.ut.cs.shoppinglist
 
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListViewModel
 import junit.framework.TestCase.assertEquals
 import org.junit.Test
 

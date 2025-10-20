@@ -29,8 +29,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.AddItemDialog
 import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.ShoppingListRow
-import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListViewModel
 
 
 @Composable

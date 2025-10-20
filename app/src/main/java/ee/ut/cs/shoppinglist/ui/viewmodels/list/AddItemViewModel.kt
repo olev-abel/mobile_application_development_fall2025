@@ -1,4 +1,4 @@
-package ee.ut.cs.shoppinglist.ui.viewmodels
+package ee.ut.cs.shoppinglist.ui.viewmodels.list
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

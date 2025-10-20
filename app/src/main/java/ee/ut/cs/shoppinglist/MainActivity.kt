@@ -16,7 +16,12 @@ class MainActivity : ComponentActivity() {
 
 
             ShoppingListTheme {
-                AppNav(app.navCoordinator)
+                AppNav(
+                    navCoordinator = app.navCoordinator,
+                    shoppingListRepository = app.shoppingListRepository,
+                    viewModeRepository = app.viewModeRepository,
+                    shoppingItemDetailsRepository = app.shoppingItemDetailsRepository
+                )
 
             }
         }

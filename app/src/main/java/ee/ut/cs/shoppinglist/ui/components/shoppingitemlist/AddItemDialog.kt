@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
-import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
