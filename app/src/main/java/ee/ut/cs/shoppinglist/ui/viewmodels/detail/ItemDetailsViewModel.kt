@@ -16,7 +16,8 @@ class ItemDetailsViewModel(
 ) : ViewModel() {
 
     val shoppingItem =
-        repository.getById(itemId).map { it?.toDomain() }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
+        repository.getById(itemId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), null)
 
     fun onBack() {
         navCoordinator.back()

@@ -40,7 +40,7 @@ class ShoppingListViewModel(
     }
 
 
-    val _items = listRepository.observeItems().map({ entities -> entities.map { it.toDomain() } })
+    val _items = listRepository.observeItems()
     val items =
         _items.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
 
@@ -68,23 +68,20 @@ class ShoppingListViewModel(
 
     fun addItem(item: ShoppingItem) {
         viewModelScope.launch {
-            val entity = item.toEntity()
-            listRepository.upsert(entity)
+            listRepository.upsert(item)
         }
     }
 
     fun removeItem(item: ShoppingItem) {
         viewModelScope.launch {
-            val entity = item.toEntity()
-            listRepository.delete(entity)
+            listRepository.delete(item)
         }
     }
 
     fun toggleBought(item: ShoppingItem) {
         val updatedItem = item.copy(isBought = !item.isBought)
         viewModelScope.launch {
-            val entity = updatedItem.toEntity()
-            listRepository.upsert(entity)
+            listRepository.upsert(updatedItem)
         }
     }
 

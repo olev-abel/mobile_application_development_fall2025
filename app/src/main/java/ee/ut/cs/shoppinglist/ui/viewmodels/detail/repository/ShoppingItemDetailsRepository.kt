@@ -1,9 +1,9 @@
 package ee.ut.cs.shoppinglist.ui.viewmodels.detail.repository
 
-import ee.ut.cs.shoppinglist.data.local.room.entity.ShoppingItemEntity
+import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import kotlinx.coroutines.flow.Flow
 
 interface ShoppingItemDetailsRepository {
 
-    fun getById(id: String): Flow<ShoppingItemEntity?>
+    fun getById(id: String): Flow<ShoppingItem?>
 }
