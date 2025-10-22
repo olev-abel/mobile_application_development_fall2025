@@ -22,14 +22,13 @@ import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsExternalSearchButton
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsFacts
 import ee.ut.cs.shoppinglist.ui.components.itemdetails.ItemDetailsHeaderImage
-import ee.ut.cs.shoppinglist.ui.viewmodels.ItemDetailsViewModel
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.detail.ItemDetailsViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DetailScreen(id: String, viewModel: ItemDetailsViewModel) {
-    val item = viewModel.shoppingItem.collectAsState().value
+fun DetailScreen( viewModel: ItemDetailsViewModel) {
+    val item = viewModel.shoppingItem.collectAsState().value ?: return
     Scaffold(
         topBar = {
             TopAppBar(

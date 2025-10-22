@@ -12,16 +12,21 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ee.ut.cs.shoppinglist.ui.screens.DetailScreen
 import ee.ut.cs.shoppinglist.ui.screens.ShoppingListScreen
-import ee.ut.cs.shoppinglist.ui.viewmodels.ItemDetailsVmFactory
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListScreenVMFactory
-import ee.ut.cs.shoppinglist.ui.viewmodels.ShoppingListViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.detail.ItemDetailsVmFactory
+import ee.ut.cs.shoppinglist.ui.viewmodels.detail.repository.ShoppingItemDetailsRepository
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListScreenVMFactory
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
 
 
 @Composable
-fun AppNav(navCoordinator: NavCoordinator) {
+fun AppNav(
+    navCoordinator: NavCoordinator,
+    shoppingListRepository: ShoppingListRepository,
+    shoppingItemDetailsRepository: ShoppingItemDetailsRepository,
+    viewModeRepository: ViewModeRepository
+) {
     val navController = rememberNavController()
-    val listVM =
-        viewModel(factory = ShoppingListScreenVMFactory(navCoordinator)) as ShoppingListViewModel
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     LaunchedEffect(navController) {
         navCoordinator.events
@@ -40,7 +45,13 @@ fun AppNav(navCoordinator: NavCoordinator) {
     NavHost(navController, startDestination = Screen.ListScreen.route) {
         composable(Screen.ListScreen.route) {
             ShoppingListScreen(
-                viewModel = listVM,
+                viewModel = viewModel(
+                    factory = ShoppingListScreenVMFactory(
+                        navCoordinator,
+                        shoppingListRepository,
+                        viewModeRepository
+                    )
+                ),
             )
         }
         composable(
@@ -48,10 +59,14 @@ fun AppNav(navCoordinator: NavCoordinator) {
             arguments = listOf(navArgument(ITEM_DETAIL_SCREEN_ID) { type = NavType.StringType })
         ) { backStackEntry ->
             val id = backStackEntry.arguments?.getString(ITEM_DETAIL_SCREEN_ID)!!
-            val item = listVM.itemById(id)
             DetailScreen(
-                id = id,
-                viewModel = viewModel(factory = ItemDetailsVmFactory(navCoordinator, item))
+                viewModel = viewModel(
+                    factory = ItemDetailsVmFactory(
+                        navCoordinator,
+                        itemId = id,
+                        shoppingItemDetailsRepository
+                    )
+                )
             )
         }
     }

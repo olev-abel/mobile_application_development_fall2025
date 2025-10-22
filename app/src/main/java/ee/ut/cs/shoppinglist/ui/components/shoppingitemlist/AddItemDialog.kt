@@ -13,7 +13,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,7 +29,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingCategory
-import ee.ut.cs.shoppinglist.ui.viewmodels.AddItemViewModel
+import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,7 +111,7 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
                         label = { Text(stringResource(R.string.item_category)) },
                         trailingIcon = { TrailingIcon(expanded) },
                         modifier = Modifier
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryNotEditable)
                             .fillMaxWidth()
                     )
                     ExposedDropdownMenu(
