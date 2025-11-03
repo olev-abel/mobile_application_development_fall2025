@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ee.ut.cs.shoppinglist.NavCoordinator
 import ee.ut.cs.shoppinglist.common.isValidUrl
+import ee.ut.cs.shoppinglist.data.remote.model.NetworkResult
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
@@ -37,19 +38,18 @@ class ShoppingListViewModel(
 
     init {
         viewModelScope.launch {
-            try {
-                listRepository.refreshFromRemote()
-            } catch (t: Throwable) {
+            val result = listRepository.refreshFromRemote()
+            if (result is NetworkResult.Error) {
                 _events.emit(
                     UiEvent.ShowToast(
-                        "Sync failed: ${t.localizedMessage ?: t::class.simpleName}"
+                        "Sync failed: ${result.message}"
                     )
                 )
             }
         }
     }
+
     private companion object {
-        const val KEY_VIEW = "view_mode"
         const val KEY_SEARCH_QUERY = "search_query"
     }
 

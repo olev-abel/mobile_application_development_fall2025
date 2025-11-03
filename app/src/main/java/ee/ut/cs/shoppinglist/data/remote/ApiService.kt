@@ -13,9 +13,6 @@ interface ApiService {
     @GET("/items")
     suspend fun getShoppingItems(): Response<List<ShoppingItemDto>>
 
-    @GET("/items/{id}")
-    suspend fun getShoppingItemById(@Path("id") id: String): Response<ShoppingItemDto>
-
     @POST("/items")
     suspend fun addShoppingItem(@Body item: ShoppingItemDto): Response<ShoppingItemDto>
 

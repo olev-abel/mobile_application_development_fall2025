@@ -32,7 +32,7 @@ class ApiShoppingListRepository(
                 NetworkResult.Success(Unit)
             }
 
-            is NetworkResult.Error -> throw Exception("Failed to refresh: ${res.message} (code: ${res.code})")
+            is NetworkResult.Error -> res
             is NetworkResult.Loading -> NetworkResult.Error("Unexpected loading state")
         }
     }
