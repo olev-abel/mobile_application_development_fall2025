@@ -20,8 +20,11 @@ import androidx.core.net.toUri
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 
+
 @Composable
 fun ItemDetailsExternalSearchButton(item: ShoppingItem) {
+    val PADDING_LARGE = 16.dp
+    val PADDING_MEDIUM = 8.dp
     val context = LocalContext.current
     Button(
         onClick = {
@@ -31,14 +34,14 @@ fun ItemDetailsExternalSearchButton(item: ShoppingItem) {
             context.startActivity(intent)
         },
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = PADDING_LARGE)
             .fillMaxWidth()
     ) {
         Icon(
             Icons.Default.Search, contentDescription = null,
 
             )
-        Spacer(Modifier.width(8.dp))
+        Spacer(Modifier.width(PADDING_MEDIUM))
         Text(stringResource(R.string.btn_search_on_google))
     }
 }

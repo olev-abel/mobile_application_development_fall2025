@@ -17,10 +17,11 @@ import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.QuantityPill
 
 @Composable
 fun ItemDetailsFacts(item: ShoppingItem) {
+    val PADDING_MEDIUM = 16.dp
     Row(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = PADDING_MEDIUM),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -35,3 +36,4 @@ fun ItemDetailsFacts(item: ShoppingItem) {
         QuantityPill(qty = item.quantity)
     }
 }
+

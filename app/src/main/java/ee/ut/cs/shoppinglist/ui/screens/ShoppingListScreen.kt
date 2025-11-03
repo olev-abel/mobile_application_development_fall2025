@@ -1,5 +1,6 @@
 package ee.ut.cs.shoppinglist.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,9 +21,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -32,7 +35,10 @@ import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.ShoppingListRow
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListViewModel
 
-
+private object Dimensions {
+    val PADDING_LARGE = 16.dp
+    val PADDING_MEDIUM = 8.dp
+}
 @Composable
 fun SearchBar(vm: ShoppingListViewModel) {
     OutlinedTextField(
@@ -42,7 +48,7 @@ fun SearchBar(vm: ShoppingListViewModel) {
         placeholder = { Text("Search items") },
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(horizontal = Dimensions.PADDING_LARGE, vertical = Dimensions.PADDING_MEDIUM),
         singleLine = true
     )
 }
@@ -52,6 +58,18 @@ fun SearchBar(vm: ShoppingListViewModel) {
 @Composable
 fun ShoppingListScreen(
     viewModel: ShoppingListViewModel) {
+
+    val context = LocalContext.current
+
+    LaunchedEffect(viewModel) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is ShoppingListViewModel.UiEvent.ShowToast -> {
+                    Toast.makeText(context, event.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
     val viewMode by viewModel.viewMode.collectAsState()
     val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
@@ -64,8 +82,8 @@ fun ShoppingListScreen(
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(Dimensions.PADDING_MEDIUM),
+                horizontalArrangement = Arrangement.spacedBy(Dimensions.PADDING_MEDIUM)
             ) {
                 Button(onClick = { viewModel.toggleViewMode(ViewMode.All) }
                 ) { Text(stringResource(R.string.btn_category_all)) }
@@ -117,7 +135,7 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
                     style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = Dimensions.PADDING_LARGE, vertical = Dimensions.PADDING_MEDIUM)
                 )
             }
             items(itemsInCategory, key = { it.id }) { item ->
@@ -130,4 +148,3 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
         }
     }
 }
-

@@ -34,6 +34,8 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
+    val PADDING_MEDIUM = 12.dp
+
     if (!vm.showAddDialog) return
     val uiState by vm.newItem.collectAsState()
 
@@ -63,7 +65,7 @@ fun AddItemDialog(vm: AddItemViewModel, onAdd: () -> Unit) {
         },
         title = { Text(stringResource(R.string.title_new_item_dialog)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(PADDING_MEDIUM)) {
                 OutlinedTextField(
                     value = uiState.name,
                     onValueChange = {

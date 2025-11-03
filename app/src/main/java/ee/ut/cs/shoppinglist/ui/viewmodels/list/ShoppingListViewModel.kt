@@ -1,16 +1,20 @@
 package ee.ut.cs.shoppinglist.ui.viewmodels.list
 
 
+import android.util.Patterns
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ee.ut.cs.shoppinglist.NavCoordinator
+import ee.ut.cs.shoppinglist.common.isValidUrl
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asSharedFlow
 
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
@@ -24,6 +28,26 @@ class ShoppingListViewModel(
     private val viewModeRepository: ViewModeRepository
 ) : ViewModel() {
 
+    sealed class UiEvent {
+        data class ShowToast(val message: String) : UiEvent()
+    }
+
+    private val _events = MutableSharedFlow<UiEvent>(replay = 0)
+    val events = _events.asSharedFlow()
+
+    init {
+        viewModelScope.launch {
+            try {
+                listRepository.refreshFromRemote()
+            } catch (t: Throwable) {
+                _events.emit(
+                    UiEvent.ShowToast(
+                        "Sync failed: ${t.localizedMessage ?: t::class.simpleName}"
+                    )
+                )
+            }
+        }
+    }
     private companion object {
         const val KEY_VIEW = "view_mode"
         const val KEY_SEARCH_QUERY = "search_query"
@@ -44,7 +68,12 @@ class ShoppingListViewModel(
 
     val filteredItems = combine(query, _items) { queryString, combinedItems ->
         combinedItems.filter { it.name.contains(queryString) }
+            .map { item ->
+                val validImage = item.image?.takeIf { isValidUrl(it) }
+                item.copy(image = validImage)
+            }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), emptyList())
+
 
     fun updateSearchQuery(newQuery: String) {
         savedStateHandle[KEY_SEARCH_QUERY] = newQuery

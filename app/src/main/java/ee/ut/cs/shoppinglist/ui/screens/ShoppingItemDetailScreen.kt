@@ -28,6 +28,10 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.detail.ItemDetailsViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen( viewModel: ItemDetailsViewModel) {
+
+    val HEIGHT_MEDIUM = 16.dp
+    val HEIGHT_LARGE = 32.dp
+
     val item = viewModel.shoppingItem.collectAsState().value ?: return
     Scaffold(
         topBar = {
@@ -51,15 +55,15 @@ fun DetailScreen( viewModel: ItemDetailsViewModel) {
                 .verticalScroll(rememberScrollState())
         ) {
             ItemDetailsHeaderImage(item)
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(HEIGHT_MEDIUM))
 
             ItemDetailsFacts(item)
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(HEIGHT_MEDIUM))
 
             ItemDetailsExternalSearchButton(item)
 
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(HEIGHT_LARGE))
         }
     }
 }

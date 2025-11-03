@@ -1,6 +1,5 @@
 package ee.ut.cs.shoppinglist.ui.components.itemdetails
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,16 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 
+
 @Composable
 fun ItemDetailsHeaderImage(item: ShoppingItem) {
+    val HEADER_HEIGHT = 180.dp
+    val ICON_SIZE = 64.dp
     // Header image
     Box(Modifier.fillMaxWidth()) {
-        val headerHeight = 180.dp
+        val headerHeight = HEADER_HEIGHT
         if (item.image != null) {
             AsyncImage(
                 model = item.image,
@@ -44,7 +45,7 @@ fun ItemDetailsHeaderImage(item: ShoppingItem) {
                 Icon(
                     Icons.Default.ShoppingCart,
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp)
+                    modifier = Modifier.size(ICON_SIZE)
                 )
             }
         }
