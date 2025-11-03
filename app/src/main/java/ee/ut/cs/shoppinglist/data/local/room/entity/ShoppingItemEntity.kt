@@ -11,6 +11,6 @@ data class ShoppingItemEntity(
     val name: String,
     val quantity: Int,
     val isBought: Boolean,
-    val image: Int?,
+    val image: String?,
     val category: String,
 )

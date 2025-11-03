@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 
 @Composable
@@ -24,8 +25,8 @@ fun ItemDetailsHeaderImage(item: ShoppingItem) {
     Box(Modifier.fillMaxWidth()) {
         val headerHeight = 180.dp
         if (item.image != null) {
-            Image(
-                painter = painterResource(item.image),
+            AsyncImage(
+                model = item.image,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxWidth()

@@ -8,5 +8,5 @@ data class ShoppingItem(
     val quantity: Int,
     val category: ShoppingCategory,
     val isBought: Boolean = false,
-    val image: Int? = null,
+    val image: String? = null,
 )
