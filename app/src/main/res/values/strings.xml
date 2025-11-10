@@ -12,4 +12,13 @@
     <string name="title_new_item_dialog">New Item</string>
     <string name="cont_dsc_remove_item">Remove Item</string>
     <string name="btn_search_on_google">Search on Google</string>
+    <string name="title_notification_rationale_dialog">Enable notifications</string>
+    <string name="message_notification_rationale_dialog">Allow the app to send notifications for important updates like shared list changes and reminders. " +
+                        "You can always change this later in system settings.</string>
+    <string name="btn_allow">Allow</string>
+    <string name="btn_decline_notifications">No thanks</string>
+    <string name="title_notifications_disabled_dialog">Notifications disabled</string>
+    <string name="message_notifications_disabled_dialog">Notifications are currently disabled. The app will not show notifications unless you enable them in system settings.</string>
+    <string name="btn_open_settings">Open settings</string>
+    <string name="btn_dismiss">Dismiss</string>
 </resources>
