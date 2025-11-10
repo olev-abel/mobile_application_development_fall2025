@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import ee.ut.cs.shoppinglist.ui.screens.DetailScreen
+import ee.ut.cs.shoppinglist.ui.screens.LoginScreen
 import ee.ut.cs.shoppinglist.ui.screens.ShoppingListScreen
 import ee.ut.cs.shoppinglist.ui.viewmodels.detail.ItemDetailsVmFactory
 import ee.ut.cs.shoppinglist.ui.viewmodels.detail.repository.ShoppingItemDetailsRepository
@@ -42,7 +43,10 @@ fun AppNav(
                 }
             }
     }
-    NavHost(navController, startDestination = Screen.ListScreen.route) {
+    NavHost(navController, startDestination = Screen.LoginScreen.route) {
+        composable(route = Screen.LoginScreen.route) {
+            LoginScreen()
+        }
         composable(Screen.ListScreen.route) {
             ShoppingListScreen(
                 viewModel = viewModel(
