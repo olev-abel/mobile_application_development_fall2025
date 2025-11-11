@@ -33,7 +33,9 @@ class MainActivity : ComponentActivity() {
                     app.navCoordinator,
                     shoppingListRepository = app.shoppingListRepository,
                     shoppingItemDetailsRepository = app.shoppingItemDetailsRepository,
-                    viewModeRepository = app.viewModeRepository
+                    viewModeRepository = app.viewModeRepository,
+                    authenticationRepository = app.authenticationRepository,
+                    resourceProvider = app.resourceProvider
                 )
             }
         }

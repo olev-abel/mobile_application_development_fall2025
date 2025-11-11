@@ -5,13 +5,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import ee.ut.cs.shoppinglist.NavCoordinator
+import ee.ut.cs.shoppinglist.domain.authentication.AuthenticationRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
 
 class ShoppingListScreenVMFactory(
     private val navCoordinator: NavCoordinator,
     private val repository: ShoppingListRepository,
-    private val viewModeRepository: ViewModeRepository
+    private val viewModeRepository: ViewModeRepository,
+    private val authenticationRepository: AuthenticationRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         val handle = extras.createSavedStateHandle()
@@ -19,7 +21,8 @@ class ShoppingListScreenVMFactory(
             savedStateHandle = handle,
             navCoordinator = navCoordinator,
             listRepository = repository,
-            viewModeRepository = viewModeRepository
+            viewModeRepository = viewModeRepository,
+            authenticationRepository = authenticationRepository
         ) as T
     }
 }

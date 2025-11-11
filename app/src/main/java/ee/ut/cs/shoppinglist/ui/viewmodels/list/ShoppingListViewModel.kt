@@ -5,9 +5,11 @@ import android.util.Patterns
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.NavCoordinator
 import ee.ut.cs.shoppinglist.common.isValidUrl
 import ee.ut.cs.shoppinglist.data.remote.model.NetworkResult
+import ee.ut.cs.shoppinglist.domain.authentication.AuthenticationRepository
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
@@ -26,7 +28,8 @@ class ShoppingListViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val navCoordinator: NavCoordinator,
     private val listRepository: ShoppingListRepository,
-    private val viewModeRepository: ViewModeRepository
+    private val viewModeRepository: ViewModeRepository,
+    private val authenticationRepository: AuthenticationRepository
 ) : ViewModel() {
 
     sealed class UiEvent {
@@ -114,5 +117,12 @@ class ShoppingListViewModel(
 
     fun openDetailScreen(id: String) {
         navCoordinator.toDetailScreen(id)
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            authenticationRepository.logout()
+            navCoordinator.logout()
+        }
     }
 }

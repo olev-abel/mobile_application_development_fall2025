@@ -21,4 +21,13 @@
     <string name="message_notifications_disabled_dialog">Notifications are currently disabled. The app will not show notifications unless you enable them in system settings.</string>
     <string name="btn_open_settings">Open settings</string>
     <string name="btn_dismiss">Dismiss</string>
+    <string name="email_field_hint">Email</string>
+    <string name="password_field_hint">Password</string>
+    <string name="hide_password_description">Hide password</string>
+    <string name="show_password_description">Show password</string>
+    <string name="error_enter_valid_email">Please enter a valid email address.</string>
+    <string name="error_password_too_short">Password must be at least %d characters long.</string>
+    <string name="error_auth_failed">Authentication failed. Please check your credentials and try again.</string>
+    <string name="btn_login">Log In</string>
+    <string name="loading_indicator_description">Loading...</string>
 </resources>

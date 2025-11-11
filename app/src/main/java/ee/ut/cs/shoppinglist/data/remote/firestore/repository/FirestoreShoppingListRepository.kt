@@ -3,7 +3,6 @@ package ee.ut.cs.shoppinglist.data.remote.firestore.repository
 import com.google.firebase.firestore.FirebaseFirestore
 import ee.ut.cs.shoppinglist.data.local.room.dao.ShoppingItemDao
 import ee.ut.cs.shoppinglist.data.local.room.mapper.toDomain
-import ee.ut.cs.shoppinglist.data.local.room.mapper.toEntity
 import ee.ut.cs.shoppinglist.data.remote.firestore.mapper.toEntity
 import ee.ut.cs.shoppinglist.data.remote.firestore.mapper.toFirestoreDto
 import ee.ut.cs.shoppinglist.data.remote.firestore.model.ShoppingListFirestoreDto
@@ -46,11 +45,16 @@ class FirestoreShoppingListRepository(
     }
 
     override suspend fun refreshFromRemote(): NetworkResult<Unit> {
-        val res = firestoreDatabase.collection(ITEMS_COLLECTION).get().await()
-        val entitites = res.documents.map { it.toObject(ShoppingListFirestoreDto::class.java) }
-            .map { it?.toEntity() }
-        localDao.replaceAll(entitites.filterNotNull())
-        return NetworkResult.Success(Unit)
+        try {
+            val res = firestoreDatabase.collection(ITEMS_COLLECTION).get().await()
+            val entitites = res.documents.map { it.toObject(ShoppingListFirestoreDto::class.java) }
+                .map { it?.toEntity() }
+            localDao.replaceAll(entitites.filterNotNull())
+            return NetworkResult.Success(Unit)
+        } catch (e: Exception) {
+            return NetworkResult.Error(e.message ?: "Unknown error")
+        }
+
     }
 
 }

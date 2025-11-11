@@ -1,7 +1,9 @@
 package ee.ut.cs.shoppinglist
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -10,6 +12,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import ee.ut.cs.shoppinglist.common.ResourceProvider
+import ee.ut.cs.shoppinglist.domain.authentication.AuthenticationRepository
 import ee.ut.cs.shoppinglist.ui.screens.DetailScreen
 import ee.ut.cs.shoppinglist.ui.screens.LoginScreen
 import ee.ut.cs.shoppinglist.ui.screens.ShoppingListScreen
@@ -18,6 +22,8 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.detail.repository.ShoppingItemDetails
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListScreenVMFactory
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
+import ee.ut.cs.shoppinglist.ui.viewmodels.login.LoginVMFactory
+import ee.ut.cs.shoppinglist.ui.viewmodels.login.LoginViewModel
 
 
 @Composable
@@ -25,10 +31,15 @@ fun AppNav(
     navCoordinator: NavCoordinator,
     shoppingListRepository: ShoppingListRepository,
     shoppingItemDetailsRepository: ShoppingItemDetailsRepository,
-    viewModeRepository: ViewModeRepository
+    viewModeRepository: ViewModeRepository,
+    authenticationRepository: AuthenticationRepository,
+    resourceProvider: ResourceProvider
 ) {
+
     val navController = rememberNavController()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
+    val startDestination = authenticationRepository.isUserLoggedIn()
+        .let { if (it) Screen.ListScreen.route else Screen.LoginScreen.route }
     LaunchedEffect(navController) {
         navCoordinator.events
             .flowWithLifecycle(lifecycle) // or repeatOnLifecycle(STARTED)
@@ -40,12 +51,25 @@ fun AppNav(
                     NavEvent.Back ->
                         navController.popBackStack()
 
+                    NavEvent.ToListScreen -> navController.navigate(Screen.ListScreen.route)
+                    NavEvent.Logout -> navController.navigate(Screen.LoginScreen.route) {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                        launchSingleTop = true
+                    }
                 }
             }
     }
-    NavHost(navController, startDestination = Screen.LoginScreen.route) {
+    NavHost(navController, startDestination = startDestination) {
         composable(route = Screen.LoginScreen.route) {
-            LoginScreen()
+            LoginScreen(
+                viewModel = viewModel(
+                    factory = LoginVMFactory(
+                        navCoordinator,
+                        authenticationRepository,
+                        resourceProvider
+                    )
+                ),
+            )
         }
         composable(Screen.ListScreen.route) {
             ShoppingListScreen(
@@ -53,7 +77,8 @@ fun AppNav(
                     factory = ShoppingListScreenVMFactory(
                         navCoordinator,
                         shoppingListRepository,
-                        viewModeRepository
+                        viewModeRepository,
+                        authenticationRepository
                     )
                 ),
             )
