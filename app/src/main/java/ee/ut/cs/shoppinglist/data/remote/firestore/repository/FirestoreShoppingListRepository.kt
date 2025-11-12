@@ -27,7 +27,7 @@ class FirestoreShoppingListRepository(
 
     override suspend fun upsert(item: ShoppingItem): NetworkResult<Unit> {
        return try {
-            val docRef = firestoreDatabase.collection("items").document(item.id)
+            val docRef = firestoreDatabase.collection(ITEMS_COLLECTION).document(item.id)
             docRef.set(item.toFirestoreDto()).await()
             refreshFromRemote()
         } catch (e: Exception) {
@@ -47,9 +47,9 @@ class FirestoreShoppingListRepository(
     override suspend fun refreshFromRemote(): NetworkResult<Unit> {
         try {
             val res = firestoreDatabase.collection(ITEMS_COLLECTION).get().await()
-            val entitites = res.documents.map { it.toObject(ShoppingListFirestoreDto::class.java) }
+            val entities = res.documents.map { it.toObject(ShoppingListFirestoreDto::class.java) }
                 .map { it?.toEntity() }
-            localDao.replaceAll(entitites.filterNotNull())
+            localDao.replaceAll(entities.filterNotNull())
             return NetworkResult.Success(Unit)
         } catch (e: Exception) {
             return NetworkResult.Error(e.message ?: "Unknown error")
