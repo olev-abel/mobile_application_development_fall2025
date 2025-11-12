@@ -3,6 +3,7 @@ package ee.ut.cs.shoppinglist.domain.authentication
 import android.content.Context
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.data.remote.model.NetworkResult
 import kotlinx.coroutines.tasks.await
 
@@ -22,7 +23,7 @@ class AuthenticationRepositoryImpl(
             NetworkResult.Success(Unit)
         } catch (e: Exception) {
             Log.w(TAG, "Login failed", e)
-            NetworkResult.Error(e.localizedMessage ?: "Login failed")
+            NetworkResult.Error(e.localizedMessage ?: context.getString(R.string.error_login_failed))
         }
 
     }
@@ -33,7 +34,7 @@ class AuthenticationRepositoryImpl(
             NetworkResult.Success(Unit)
         } catch (e: Exception) {
             Log.w(TAG, "logout failed", e)
-            NetworkResult.Error(e.localizedMessage ?: "Logout failed")
+            NetworkResult.Error(e.localizedMessage ?: context.getString(R.string.error_logout_failed))
         }
     }
 }

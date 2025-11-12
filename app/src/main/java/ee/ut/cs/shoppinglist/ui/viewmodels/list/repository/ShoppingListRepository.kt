@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ShoppingListRepository {
     fun observeItems(): Flow<List<ShoppingItem>>
-    suspend fun upsert(item: ShoppingItem)
-    suspend fun delete(item: ShoppingItem)
+    suspend fun upsert(item: ShoppingItem): NetworkResult<Unit>
+    suspend fun delete(item: ShoppingItem): NetworkResult<Unit>
 
     suspend fun refreshFromRemote(): NetworkResult<Unit>
 }

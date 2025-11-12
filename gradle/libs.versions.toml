@@ -27,7 +27,6 @@ crashlytics-plugin = "3.0.6"
 firebase-analytics = "23.0.0"
 firebase-crashlytics = "20.0.3"
 firebase-auth = "24.0.1"
-firebase-ui-auth = "9.0.0"
 firebase-firestore = "26.0.2"
 firebase-messaging = "25.0.1"
 
@@ -64,7 +63,6 @@ retrofit-gson-converter = { group = "com.squareup.retrofit2", name = "converter-
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics", version.ref = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebase-crashlytics" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version.ref = "firebase-auth" }
-firebase-ui-auth = { group = "com.firebaseui", name = "firebase-ui-auth", version.ref = "firebase-ui-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebase-firestore" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebase-messaging" }
 [plugins]

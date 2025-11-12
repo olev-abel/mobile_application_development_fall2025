@@ -25,22 +25,22 @@ class FirestoreShoppingListRepository(
             .map { it.map { itemEntity -> itemEntity.toDomain() } }
     }
 
-    override suspend fun upsert(item: ShoppingItem) {
-        try {
+    override suspend fun upsert(item: ShoppingItem): NetworkResult<Unit> {
+       return try {
             val docRef = firestoreDatabase.collection("items").document(item.id)
             docRef.set(item.toFirestoreDto()).await()
             refreshFromRemote()
         } catch (e: Exception) {
-            throw e
+            return NetworkResult.Error(e.message ?: "Unknown error")
         }
     }
 
-    override suspend fun delete(item: ShoppingItem) {
-        try {
+    override suspend fun delete(item: ShoppingItem): NetworkResult<Unit> {
+       return try {
             firestoreDatabase.collection(ITEMS_COLLECTION).document(item.id).delete().await()
             refreshFromRemote()
         } catch (e: Exception) {
-            throw e
+           return NetworkResult.Error(e.message ?: "Unknown error")
         }
     }
 

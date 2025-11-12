@@ -1,12 +1,12 @@
 package ee.ut.cs.shoppinglist.ui.viewmodels.list
 
 
-import android.util.Patterns
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import ee.ut.cs.shoppinglist.NavCoordinator
+import ee.ut.cs.shoppinglist.R
+import ee.ut.cs.shoppinglist.common.ResourceProvider
 import ee.ut.cs.shoppinglist.common.isValidUrl
 import ee.ut.cs.shoppinglist.data.remote.model.NetworkResult
 import ee.ut.cs.shoppinglist.domain.authentication.AuthenticationRepository
@@ -15,10 +15,8 @@ import ee.ut.cs.shoppinglist.ui.screens.ViewMode
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
-
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asSharedFlow
-
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -29,7 +27,8 @@ class ShoppingListViewModel(
     private val navCoordinator: NavCoordinator,
     private val listRepository: ShoppingListRepository,
     private val viewModeRepository: ViewModeRepository,
-    private val authenticationRepository: AuthenticationRepository
+    private val authenticationRepository: AuthenticationRepository,
+    private val resourceProvider: ResourceProvider
 ) : ViewModel() {
 
     sealed class UiEvent {
@@ -43,11 +42,8 @@ class ShoppingListViewModel(
         viewModelScope.launch {
             val result = listRepository.refreshFromRemote()
             if (result is NetworkResult.Error) {
-                _events.emit(
-                    UiEvent.ShowToast(
-                        "Sync failed: ${result.message}"
-                    )
-                )
+                val message = resourceProvider.getString(R.string.error_sync_failed, result.message)
+                emitError(message)
             }
         }
     }
@@ -98,13 +94,27 @@ class ShoppingListViewModel(
 
     fun addItem(item: ShoppingItem) {
         viewModelScope.launch {
-            listRepository.upsert(item)
+            val res = listRepository.upsert(item)
+            if (res is NetworkResult.Error) {
+                val message = resourceProvider.getString(
+                    R.string.error_upsert_failed,
+                    res.message
+                )
+                emitError(message)
+            }
         }
     }
 
     fun removeItem(item: ShoppingItem) {
         viewModelScope.launch {
-            listRepository.delete(item)
+            val res = listRepository.delete(item)
+            if (res is NetworkResult.Error) {
+                val message = resourceProvider.getString(
+                    R.string.error_remove_failed,
+                    res.message
+                )
+                emitError(message)
+            }
         }
     }
 
@@ -123,6 +133,16 @@ class ShoppingListViewModel(
         viewModelScope.launch {
             authenticationRepository.logout()
             navCoordinator.logout()
+        }
+    }
+
+    private fun emitError(message: String) {
+        viewModelScope.launch {
+            _events.emit(
+                UiEvent.ShowToast(
+                    message
+                )
+            )
         }
     }
 }

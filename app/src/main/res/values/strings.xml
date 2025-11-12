@@ -29,5 +29,10 @@
     <string name="error_password_too_short">Password must be at least %d characters long.</string>
     <string name="error_auth_failed">Authentication failed. Please check your credentials and try again.</string>
     <string name="btn_login">Log In</string>
-    <string name="loading_indicator_description">Loading...</string>
+    <string name="loading_indicator_description">Loading…</string>
+    <string name="error_login_failed">Login failed</string>
+    <string name="error_logout_failed">Logout failed</string>
+    <string name="error_sync_failed">Sync failed: %s</string>
+    <string name="error_upsert_failed">Upsert failed: %s</string>
+    <string name="error_remove_failed">Remove failed: %s</string>
 </resources>

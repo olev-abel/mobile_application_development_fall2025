@@ -1,9 +1,7 @@
 package ee.ut.cs.shoppinglist
 
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -23,7 +21,6 @@ import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListScreenVMFactory
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ShoppingListRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.repository.ViewModeRepository
 import ee.ut.cs.shoppinglist.ui.viewmodels.login.LoginVMFactory
-import ee.ut.cs.shoppinglist.ui.viewmodels.login.LoginViewModel
 
 
 @Composable
@@ -78,7 +75,8 @@ fun AppNav(
                         navCoordinator,
                         shoppingListRepository,
                         viewModeRepository,
-                        authenticationRepository
+                        authenticationRepository,
+                        resourceProvider
                     )
                 ),
             )
