@@ -1,8 +1,15 @@
 package ee.ut.cs.shoppinglist.ui.screens
 
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +22,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,8 +36,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,11 +51,14 @@ import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.AddItemDialog
 import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.ShoppingListRow
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private object Dimensions {
     val PADDING_LARGE = 16.dp
     val PADDING_MEDIUM = 8.dp
 }
+
 @Composable
 fun SearchBar(vm: ShoppingListViewModel) {
     OutlinedTextField(
@@ -60,11 +73,36 @@ fun SearchBar(vm: ShoppingListViewModel) {
     )
 }
 
+@Composable
+fun AnimatedFab(onClick: () -> Unit, icon: @Composable () -> Unit) {
+    val PRESSED_SCALE = 0.92f
+    val DEFAULT_SCALE = 1f
+    val PRESSED_ANIMATION_DURATION = 120L
+    var pressed by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val scale by animateFloatAsState(targetValue = if (pressed) PRESSED_SCALE else DEFAULT_SCALE, animationSpec = spring())
+
+    FloatingActionButton(
+        onClick = {
+            scope.launch {
+                pressed = true
+                delay(PRESSED_ANIMATION_DURATION)
+                onClick()
+                pressed = false
+            }
+        },
+        modifier = Modifier.graphicsLayer(scaleX = scale, scaleY = scale)
+    ) {
+        icon()
+    }
+}
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
-    viewModel: ShoppingListViewModel) {
+    viewModel: ShoppingListViewModel
+) {
 
     val context = LocalContext.current
 
@@ -80,9 +118,9 @@ fun ShoppingListScreen(
     val viewMode by viewModel.viewMode.collectAsState()
     val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
-        FloatingActionButton(onClick = {
-            addVm.openAdd()
-        }) { Icon(Icons.Default.Add, stringResource(R.string.btn_add)) }
+        AnimatedFab(onClick = { addVm.openAdd()} ) {
+            Icon(Icons.Default.Add, stringResource(R.string.btn_add))
+        }
     }) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             Row {
@@ -93,7 +131,10 @@ fun ShoppingListScreen(
                     Icon(
                         Icons.AutoMirrored.Filled.Logout, contentDescription = null,
                         modifier = Modifier
-                            .padding(top = Dimensions.PADDING_LARGE, bottom = Dimensions.PADDING_LARGE)
+                            .padding(
+                                top = Dimensions.PADDING_LARGE,
+                                bottom = Dimensions.PADDING_LARGE
+                            )
                             .fillMaxWidth()
                             .then(Modifier),
                         tint = MaterialTheme.colorScheme.primary,
@@ -130,7 +171,7 @@ enum class ViewMode { All, ByCategory }
 
 
 @Composable
-fun AllItemsList(viewModel: ShoppingListViewModel,) {
+fun AllItemsList(viewModel: ShoppingListViewModel) {
     val filteredItems by viewModel.filteredItems.collectAsState()
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -169,7 +210,7 @@ fun CategoryList(viewModel: ShoppingListViewModel) {
                     item = item,
                     onCheckChanged = { viewModel.toggleBought(item) },
                     onRemove = { viewModel.removeItem(item) },
-                    onClick = {item -> viewModel.openDetailScreen(item.id)})
+                    onClick = { item -> viewModel.openDetailScreen(item.id) })
             }
         }
     }

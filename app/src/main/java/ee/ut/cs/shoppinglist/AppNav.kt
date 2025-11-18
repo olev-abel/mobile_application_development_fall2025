@@ -1,5 +1,10 @@
 package ee.ut.cs.shoppinglist
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -33,13 +38,16 @@ fun AppNav(
     resourceProvider: ResourceProvider
 ) {
 
+    val NAV_CONTROLLER_ANIMATION_DURATION_MILLIS = 500
+    val NAV_CONTROLLER_SLIDE_OFFSET = 2000
+
     val navController = rememberNavController()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val startDestination = authenticationRepository.isUserLoggedIn()
         .let { if (it) Screen.ListScreen.route else Screen.LoginScreen.route }
     LaunchedEffect(navController) {
         navCoordinator.events
-            .flowWithLifecycle(lifecycle) // or repeatOnLifecycle(STARTED)
+            .flowWithLifecycle(lifecycle)
             .collect { event ->
                 when (event) {
                     is NavEvent.ToDetailScreen ->
@@ -56,7 +64,22 @@ fun AppNav(
                 }
             }
     }
-    NavHost(navController, startDestination = startDestination) {
+    NavHost(
+        navController,
+        startDestination = startDestination,
+        enterTransition = {
+            slideInHorizontally(
+                initialOffsetX = { NAV_CONTROLLER_SLIDE_OFFSET },
+                animationSpec = tween(NAV_CONTROLLER_ANIMATION_DURATION_MILLIS)
+            ) + fadeIn()
+        },
+        exitTransition = {
+            slideOutHorizontally(
+                targetOffsetX = { -NAV_CONTROLLER_SLIDE_OFFSET },
+                animationSpec = tween(NAV_CONTROLLER_ANIMATION_DURATION_MILLIS)
+            ) + fadeOut()
+        }
+    ) {
         composable(route = Screen.LoginScreen.route) {
             LoginScreen(
                 viewModel = viewModel(

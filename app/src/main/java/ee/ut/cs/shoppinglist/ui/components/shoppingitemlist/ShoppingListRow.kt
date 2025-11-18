@@ -1,7 +1,10 @@
 package ee.ut.cs.shoppinglist.ui.components.shoppingitemlist
 
-import android.net.Uri
 import android.util.Log
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -15,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,13 +32,19 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -44,15 +52,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import androidx.core.net.toUri
+import coil3.compose.SubcomposeAsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import ee.ut.cs.shoppinglist.R
 import ee.ut.cs.shoppinglist.domain.model.ShoppingItem
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
-import coil3.compose.SubcomposeAsyncImage
-import kotlin.math.log
 
 
 @Composable
@@ -85,33 +91,71 @@ fun ShoppingListRow(
     onRemove: (ShoppingItem) -> Unit,
     onClick: (ShoppingItem) -> Unit
 ) {
+
+    val CHECKBOX_SELECTED_SCALE = 1.2f
+    val CHECKBOX_DEFAULT_SCALE = 1f
+    val checkboxScale by animateFloatAsState(
+        targetValue = if (item.isBought) CHECKBOX_SELECTED_SCALE else CHECKBOX_DEFAULT_SCALE,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+    )
+
+    val TEXT_ALPHA_BOUGHT = 0.5f
+    val TEXT_ALPHA_DEFAULT = 1f
+    val TEXT_ALPHA_ANIMATION_DURATION = 300
+    val textAlpha by animateFloatAsState(
+        targetValue = if (item.isBought) TEXT_ALPHA_BOUGHT else TEXT_ALPHA_DEFAULT,
+        animationSpec = tween(TEXT_ALPHA_ANIMATION_DURATION)
+    )
+
+
     val rowPadding = dimensionResource(R.dimen.row_padding)
-    val avatarSize = dimensionResource(R.dimen.avatar_size)
     val gapXs = dimensionResource(R.dimen.spacing_xs)
     val gapSm = dimensionResource(R.dimen.spacing_sm)
     val gapMd = dimensionResource(R.dimen.spacing_md)
 
     val swipeToDismissState = rememberSwipeToDismissBoxState()
     val scope = rememberCoroutineScope()
+
+    val ICON_SCALE_ENLARGED = 1.2f
+    val ICON_SCALE_DEFAULT = 1f
+    val SWIPE_PROGRESS_THRESHOLD = 0.15f
+
+    var iconTarget by remember { mutableStateOf(ICON_SCALE_DEFAULT) }
+    val iconScale by animateFloatAsState(
+        targetValue = iconTarget,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+    )
+
+    LaunchedEffect(swipeToDismissState) {
+        snapshotFlow { swipeToDismissState.progress to swipeToDismissState.dismissDirection }
+            .collect { (progress, dir) ->
+                iconTarget = if (dir == SwipeToDismissBoxValue.EndToStart && progress > SWIPE_PROGRESS_THRESHOLD) ICON_SCALE_ENLARGED else ICON_SCALE_DEFAULT
+            }
+    }
+
+
+
     SwipeToDismissBox(
         state = swipeToDismissState,
         modifier = Modifier.fillMaxSize(),
         backgroundContent = {
-            when (swipeToDismissState.dismissDirection) {
-                SwipeToDismissBoxValue.StartToEnd -> {}
-                SwipeToDismissBoxValue.EndToStart -> {
+            if (swipeToDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Red)
+                        .padding(rowPadding),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
                     Icon(
                         imageVector = Icons.Default.Delete,
                         contentDescription = stringResource(R.string.cont_dsc_remove_item),
                         modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Red)
-                            .wrapContentSize(Alignment.CenterEnd)
-                            .padding(rowPadding),
+                            .size(28.dp)
+                            .graphicsLayer { scaleX = iconScale; scaleY = iconScale },
                         tint = Color.White
                     )
                 }
-                SwipeToDismissBoxValue.Settled -> {}
             }
         },
         onDismiss = { direction ->
@@ -136,7 +180,7 @@ fun ShoppingListRow(
                 .clickable { onClick(item) },
             verticalAlignment = Alignment.CenterVertically
         ) {
-           ShoppingItemAvatar(item)
+            ShoppingItemAvatar(item)
 
             Spacer(Modifier.width(gapSm))
 
@@ -144,6 +188,7 @@ fun ShoppingListRow(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = item.name,
+                        modifier = Modifier.graphicsLayer(alpha = textAlpha),
                         style = if (item.isBought) {
                             MaterialTheme.typography.titleMedium.copy(
                                 textDecoration = TextDecoration.LineThrough,
@@ -170,7 +215,8 @@ fun ShoppingListRow(
 
             Checkbox(
                 checked = item.isBought,
-                onCheckedChange = onCheckChanged
+                onCheckedChange = onCheckChanged,
+                modifier = Modifier.scale(checkboxScale)
             )
         }
     }
