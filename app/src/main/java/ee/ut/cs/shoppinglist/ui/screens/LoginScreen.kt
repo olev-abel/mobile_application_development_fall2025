@@ -44,12 +44,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import ee.ut.cs.shoppinglist.R
+import ee.ut.cs.shoppinglist.common.TestTags
+import ee.ut.cs.shoppinglist.common.TestTags.LOGIN_BUTTON
+import ee.ut.cs.shoppinglist.common.TestTags.LOGIN_BUTTON_LABEL
+import ee.ut.cs.shoppinglist.common.TestTags.LOGIN_EMAIL_EDIT_TEXT
+import ee.ut.cs.shoppinglist.common.TestTags.LOGIN_LOADING_INDICATOR
+import ee.ut.cs.shoppinglist.common.TestTags.LOGIN_PASSWORD_EDIT_TEXT
 import ee.ut.cs.shoppinglist.ui.screens.LoginScreenAnimationAndSizeConst.ENTRANCE_ANIMATION_DELAY_MS
 import ee.ut.cs.shoppinglist.ui.screens.LoginScreenAnimationAndSizeConst.FORM_FADE_IN_ANIMATION_DURATION_MS
 import ee.ut.cs.shoppinglist.ui.screens.LoginScreenAnimationAndSizeConst.FORM_FADE_IN_OFFSET_DIVIDER
@@ -95,7 +102,10 @@ fun LoginScreen(viewModel: LoginViewModel) {
     // Simple logo scale for entrance
     val logoScale by animateFloatAsState(
         targetValue = if (contentVisible) LOGO_SCALE_DEFAULT else LOGO_SCALE_INITIAL,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
     )
 
 
@@ -106,9 +116,6 @@ fun LoginScreen(viewModel: LoginViewModel) {
     val formOffset = remember { Animatable(INITIAL_FORM_OFFSET) }
 
 
-
-
-
     // Collect events and trigger loading / snackbar / shake
     LaunchedEffect(viewModel) {
         viewModel.events.collect { event ->
@@ -116,16 +123,29 @@ fun LoginScreen(viewModel: LoginViewModel) {
                 is LoginViewModel.UiEvent.Loading -> {
                     loading.value = true
                 }
+
                 is LoginViewModel.UiEvent.ShowError -> {
                     loading.value = false
                     // start a short shake in a child coroutine
                     launch {
                         val px = with(density) { PADDING_SMALL.toPx() }
                         formOffset.animateTo(px, tween(INITIAL_ENTRANCE_ANIMATION_DURATION_1))
-                        formOffset.animateTo(-px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_1, tween(INITIAL_ENTRANCE_ANIMATION_DURATION_1))
-                        formOffset.animateTo(px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_2, tween(INITIAL_ENTRANCE_ANIMATION_DURATION_2))
-                        formOffset.animateTo(-px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_3, tween(INITIAL_ENTRANCE_ANIMATION_DURATION_3))
-                        formOffset.animateTo(INITIAL_FORM_OFFSET, tween(INITIAL_ENTRANCE_ANIMATION_DURATION_4))
+                        formOffset.animateTo(
+                            -px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_1,
+                            tween(INITIAL_ENTRANCE_ANIMATION_DURATION_1)
+                        )
+                        formOffset.animateTo(
+                            px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_2,
+                            tween(INITIAL_ENTRANCE_ANIMATION_DURATION_2)
+                        )
+                        formOffset.animateTo(
+                            -px * INITIAL_ENTRANCE_ANIMATION_OFFSET_MULTIPLIER_3,
+                            tween(INITIAL_ENTRANCE_ANIMATION_DURATION_3)
+                        )
+                        formOffset.animateTo(
+                            INITIAL_FORM_OFFSET,
+                            tween(INITIAL_ENTRANCE_ANIMATION_DURATION_4)
+                        )
                     }
                     // show snackbar (suspending)
                     snackbarHostState.showSnackbar(event.message)
@@ -150,7 +170,10 @@ fun LoginScreen(viewModel: LoginViewModel) {
             // Logo with entrance scale + fade/slide
             AnimatedVisibility(
                 visible = contentVisible,
-                enter = fadeIn(animationSpec = tween(LOGO_FADE_IN_ANIMATION_DURATION_MS)) + slideInVertically(initialOffsetY = { it / LOGO_FADE_IN_OFFSET_DIVIDER }, animationSpec = tween(LOGO_FADE_IN_ANIMATION_DURATION_MS))
+                enter = fadeIn(animationSpec = tween(LOGO_FADE_IN_ANIMATION_DURATION_MS)) + slideInVertically(
+                    initialOffsetY = { it / LOGO_FADE_IN_OFFSET_DIVIDER },
+                    animationSpec = tween(LOGO_FADE_IN_ANIMATION_DURATION_MS)
+                )
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -165,7 +188,10 @@ fun LoginScreen(viewModel: LoginViewModel) {
             // Form block: slides/fades in and translates when shaken
             AnimatedVisibility(
                 visible = contentVisible,
-                enter = fadeIn(animationSpec = tween(FORM_FADE_IN_ANIMATION_DURATION_MS)) + slideInVertically(initialOffsetY = { it / FORM_FADE_IN_OFFSET_DIVIDER }, animationSpec = tween(FORM_FADE_IN_ANIMATION_DURATION_MS))
+                enter = fadeIn(animationSpec = tween(FORM_FADE_IN_ANIMATION_DURATION_MS)) + slideInVertically(
+                    initialOffsetY = { it / FORM_FADE_IN_OFFSET_DIVIDER },
+                    animationSpec = tween(FORM_FADE_IN_ANIMATION_DURATION_MS)
+                )
             ) {
                 Column(
                     modifier = Modifier
@@ -177,7 +203,9 @@ fun LoginScreen(viewModel: LoginViewModel) {
                         onValueChange = { email.value = it },
                         label = { Text(stringResource(R.string.email_field_hint)) },
                         singleLine = true,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag(LOGIN_EMAIL_EDIT_TEXT)
                     )
 
                     OutlinedTextField(
@@ -187,16 +215,21 @@ fun LoginScreen(viewModel: LoginViewModel) {
                         singleLine = true,
                         visualTransformation = if (passwordVisible.value) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            IconButton(onClick = { passwordVisible.value = !passwordVisible.value }) {
+                            IconButton(onClick = {
+                                passwordVisible.value = !passwordVisible.value
+                            }) {
                                 Icon(
                                     imageVector = if (passwordVisible.value) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                                    contentDescription = if (passwordVisible.value) stringResource(R.string.hide_password_description) else stringResource(R.string.show_password_description)
+                                    contentDescription = if (passwordVisible.value) stringResource(R.string.hide_password_description) else stringResource(
+                                        R.string.show_password_description
+                                    )
                                 )
                             }
                         },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(top = PADDING_SMALL)
+                            .testTag(LOGIN_PASSWORD_EDIT_TEXT)
                     )
 
                     Button(
@@ -208,6 +241,7 @@ fun LoginScreen(viewModel: LoginViewModel) {
                         },
                         modifier = Modifier
                             .fillMaxWidth()
+                            .testTag(LOGIN_BUTTON)
                             .padding(top = PADDING_NORMAL),
                         contentPadding = PaddingValues(vertical = PADDING_SMALL)
                     ) {
@@ -216,12 +250,16 @@ fun LoginScreen(viewModel: LoginViewModel) {
                             if (isLoading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
-                                        .size(LOADING_INDICATOR_SIZE),
+                                        .size(LOADING_INDICATOR_SIZE)
+                                        .testTag(LOGIN_LOADING_INDICATOR),
                                     strokeWidth = LOADING_INDICATOR_STROKE_WIDTH,
                                     color = MaterialTheme.colorScheme.onPrimary
                                 )
                             } else {
-                                Text(stringResource(R.string.btn_login))
+                                Text(
+                                    stringResource(R.string.btn_login),
+                                    modifier = Modifier.testTag(LOGIN_BUTTON_LABEL)
+                                )
                             }
                         }
                     }
@@ -253,8 +291,8 @@ private object LoginScreenAnimationAndSizeConst {
     const val FORM_FADE_IN_ANIMATION_DURATION_MS = 320
     const val FORM_FADE_IN_OFFSET_DIVIDER = 6
 
-     val LOADING_INDICATOR_SIZE = 20.dp
-     val LOADING_INDICATOR_STROKE_WIDTH = 2.dp
+    val LOADING_INDICATOR_SIZE = 20.dp
+    val LOADING_INDICATOR_STROKE_WIDTH = 2.dp
 
     val PADDING_SMALL = 12.dp
     val PADDING_NORMAL = 16.dp

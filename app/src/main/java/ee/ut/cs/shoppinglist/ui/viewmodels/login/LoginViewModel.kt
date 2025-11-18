@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 private val PASSWORD_MIN_LENGTH = 6
 
-class LoginViewModel(
+open class LoginViewModel(
     private val navCoordinator: NavCoordinator,
     private val authenticationRepository: AuthenticationRepository,
     private val resources: ResourceProvider
@@ -25,7 +25,7 @@ class LoginViewModel(
     }
 
     private val _events = MutableSharedFlow<UiEvent>(replay = 0)
-    val events = _events.asSharedFlow()
+    open val events = _events.asSharedFlow()
 
     fun onLoginClicked(email: String, password: String) {
         startLoading()

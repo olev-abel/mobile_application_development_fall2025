@@ -10,7 +10,7 @@ sealed interface NavEvent {
     data object Back : NavEvent
 }
 
-class NavCoordinator {
+open class NavCoordinator {
 
     private val _channel = Channel<NavEvent>(capacity = Channel.BUFFERED)
     val events = _channel.receiveAsFlow()
