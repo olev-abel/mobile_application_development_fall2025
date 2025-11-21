@@ -15,19 +15,19 @@ open class NavCoordinator {
     private val _channel = Channel<NavEvent>(capacity = Channel.BUFFERED)
     val events = _channel.receiveAsFlow()
 
-    fun toDetailScreen(id: String) {
+    open fun toDetailScreen(id: String) {
         _channel.trySend(NavEvent.ToDetailScreen(id))
     }
 
-    fun toListScreen() {
+    open fun toListScreen() {
         _channel.trySend(NavEvent.ToListScreen)
     }
 
-    fun back() {
+    open fun back() {
         _channel.trySend(NavEvent.Back)
     }
 
-    fun logout() {
+    open fun logout() {
         _channel.trySend(NavEvent.Logout)
     }
 }

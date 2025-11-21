@@ -1,20 +1,19 @@
 package ee.ut.cs.shoppinglist.ui.screens
 
-import android.util.Log
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.hasClickAction
-import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import ee.ut.cs.shoppinglist.NavCoordinator
+import ee.ut.cs.shoppinglist.Screen
 import ee.ut.cs.shoppinglist.common.TestResourceProvider
 import ee.ut.cs.shoppinglist.common.TestTags
 import ee.ut.cs.shoppinglist.data.TestAuthenticationRepository
+import ee.ut.cs.shoppinglist.data.TestNavCoordinator
 import ee.ut.cs.shoppinglist.ui.viewmodels.login.LoginViewModel
+import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -33,13 +32,17 @@ class LoginScreenTest {
     // Test double for the ViewModel. The project provides a test-only open LoginViewModel()
     // in the androidTest source set (no-arg). Extend that instead of trying to call the
     // production constructor with test-only dependencies.
-    private class TestLoginViewModel(shouldLoginSucceed: Boolean, shouldUserBeLoggedIn: Boolean) :
+    private class TestLoginViewModel(
+        shouldLoginSucceed: Boolean,
+        shouldUserBeLoggedIn: Boolean,
+        testNav: TestNavCoordinator = TestNavCoordinator()
+    ) :
         LoginViewModel(
             authenticationRepository = TestAuthenticationRepository(
                 shouldLoginSucceed = shouldLoginSucceed,
                 shouldUserBeLoggedIn = shouldUserBeLoggedIn
             ),
-            navCoordinator = NavCoordinator(),
+            navCoordinator = testNav,
             resources = TestResourceProvider()
         ) {
         private val _events = MutableSharedFlow<UiEvent>()
@@ -78,7 +81,8 @@ class LoginScreenTest {
 
         val loginButtonNode = composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON)
         loginButtonNode.performClick()
-        val loginButtonLabel = composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON_LABEL, useUnmergedTree = true)
+        val loginButtonLabel =
+            composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON_LABEL, useUnmergedTree = true)
         loginButtonLabel.assertIsDisplayed()
 
         // Simulate the ViewModel signalling loading and assert a progress indicator appears.
@@ -101,12 +105,45 @@ class LoginScreenTest {
             launch(Dispatchers.Main) { vm.emitError(testMessage) }
         }
         composeRule.mainClock.advanceTimeBy(500L)
-         val test = loginButtonNode.toString()
+        val test = loginButtonNode.toString()
 
         // Snackbar shows the error text
         composeRule.onNodeWithText(testMessage).assertIsDisplayed()
         loadingIndicator.assertIsNotDisplayed()
         loginButtonNode.assertIsDisplayed()
         loginButtonLabel.assertIsDisplayed()
+    }
+
+    @Test
+    fun whenLoginSucceeds_navigatesToListScreen() {
+        val testNavCoordinator = TestNavCoordinator()
+        val vm = TestLoginViewModel(
+            shouldLoginSucceed = true,
+            shouldUserBeLoggedIn = false,
+            testNav = testNavCoordinator
+        )
+
+        composeRule.setContent {
+            LoginScreen(viewModel = vm)
+        }
+
+        // advance past entrance animations
+        composeRule.mainClock.advanceTimeBy(1500L)
+
+        val emailTextFiled = composeRule.onNodeWithTag(TestTags.LOGIN_EMAIL_EDIT_TEXT)
+        val passwordTextFiled = composeRule.onNodeWithTag(TestTags.LOGIN_PASSWORD_EDIT_TEXT)
+
+        emailTextFiled.performTextInput("test@example.com")
+        passwordTextFiled.performTextInput("secretpw")
+
+        val loginButtonNode = composeRule.onNodeWithTag(TestTags.LOGIN_BUTTON)
+        loginButtonNode.performClick()
+        runBlocking {
+            launch(Dispatchers.Main) { /* no-op, allow main dispatcher to run */ }
+        }
+        composeRule.mainClock.advanceTimeBy(500L)
+
+
+        assertEquals(Screen.ListScreen.route, testNavCoordinator.lastRoute)
     }
 }

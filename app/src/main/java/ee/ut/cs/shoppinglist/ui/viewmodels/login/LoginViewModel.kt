@@ -22,6 +22,7 @@ open class LoginViewModel(
     sealed class UiEvent {
         data class ShowError(val message: String) : UiEvent()
         data object Loading : UiEvent()
+        data object Success: UiEvent()
     }
 
     private val _events = MutableSharedFlow<UiEvent>(replay = 0)
@@ -40,7 +41,10 @@ open class LoginViewModel(
                 )
 
                 NetworkResult.Loading -> _events.emit(UiEvent.Loading)
-                is NetworkResult.Success<*> -> navCoordinator.toListScreen()
+                is NetworkResult.Success<*> -> {
+                    _events.emit(UiEvent.Success)
+                    navCoordinator.toListScreen()
+                }
             }
         }
     }

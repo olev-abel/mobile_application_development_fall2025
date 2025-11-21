@@ -150,6 +150,8 @@ fun LoginScreen(viewModel: LoginViewModel) {
                     // show snackbar (suspending)
                     snackbarHostState.showSnackbar(event.message)
                 }
+
+                LoginViewModel.UiEvent.Success -> loading.value = false
             }
         }
     }
