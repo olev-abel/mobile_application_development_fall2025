@@ -1,6 +1,8 @@
 package ee.ut.cs.shoppinglist.ui.screens
 
 import android.widget.Toast
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +32,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -41,6 +49,8 @@ import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.AddItemDialog
 import ee.ut.cs.shoppinglist.ui.components.shoppingitemlist.ShoppingListRow
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.AddItemViewModel
 import ee.ut.cs.shoppinglist.ui.viewmodels.list.ShoppingListViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private object Dimensions {
     val PADDING_LARGE = 16.dp
@@ -61,6 +71,37 @@ fun SearchBar(vm: ShoppingListViewModel) {
 }
 
 
+@Composable
+fun AnimatedFAB(
+    onClick: ()-> Unit,
+    icon : @Composable () -> Unit
+){
+    val PRESSED_SCALE = 0.52f
+    val DEFAULT_SCALE = 1f
+    val PRESSED_ANIMATION_DURATION = 150L
+    var pressed by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val scale by animateFloatAsState(targetValue = if (pressed) PRESSED_SCALE else DEFAULT_SCALE, animationSpec = spring())
+
+    FloatingActionButton(
+        onClick={
+            scope.launch {
+                pressed = true
+                delay(PRESSED_ANIMATION_DURATION)
+                onClick()
+                pressed = false
+            }
+
+        },
+        modifier = Modifier.scale(
+            scaleX = scale,
+            scaleY = scale
+        )
+    ) {
+      icon()
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListScreen(
@@ -80,7 +121,7 @@ fun ShoppingListScreen(
     val viewMode by viewModel.viewMode.collectAsState()
     val addVm: AddItemViewModel = viewModel(key = "AddItemVM")
     Scaffold(floatingActionButton = {
-        FloatingActionButton(onClick = {
+        AnimatedFAB(onClick = {
             addVm.openAdd()
         }) { Icon(Icons.Default.Add, stringResource(R.string.btn_add)) }
     }) { paddingValues ->

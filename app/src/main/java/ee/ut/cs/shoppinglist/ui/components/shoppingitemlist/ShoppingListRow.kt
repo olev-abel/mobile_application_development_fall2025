@@ -2,6 +2,9 @@ package ee.ut.cs.shoppinglist.ui.components.shoppingitemlist
 
 import android.net.Uri
 import android.util.Log
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -30,13 +33,18 @@ import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -93,6 +101,38 @@ fun ShoppingListRow(
 
     val swipeToDismissState = rememberSwipeToDismissBoxState()
     val scope = rememberCoroutineScope()
+
+    val CHECKBOX_SELECTED_SCALE = 1.5f
+    val CHECKBOX_DEFAULT_SCALE = 1f
+
+    val TEXT_ALPHA_BOUGHT = 0.5f
+    val TEXT_ALPHA_DEFAULT = 1f
+    val TEXT_ALPHA_ANIMATION_DURATION = 300
+
+    val ICON_SCALE_DEFAULT = 1.0F
+    val ICON_SCALE_ENLARGED = 1.5F
+    val SWIPE_TO_DISMISS_THRESHOLD = 0.50F
+
+    var iconTarget by remember { mutableStateOf(ICON_SCALE_DEFAULT) }
+    val iconScale by animateFloatAsState(
+        targetValue = iconTarget,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+    )
+    val checkBoxScale by animateFloatAsState(
+        targetValue = if(item.isBought) CHECKBOX_SELECTED_SCALE else CHECKBOX_DEFAULT_SCALE,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy)
+    )
+
+    val textScale by animateFloatAsState(
+        targetValue = if(item.isBought) TEXT_ALPHA_BOUGHT else TEXT_ALPHA_DEFAULT
+    )
+    LaunchedEffect(swipeToDismissState) {
+        snapshotFlow { swipeToDismissState.progress to swipeToDismissState.dismissDirection
+        }.collect { (progress,dir) ->
+
+            iconTarget = if (dir == SwipeToDismissBoxValue.EndToStart && progress > SWIPE_TO_DISMISS_THRESHOLD ) ICON_SCALE_ENLARGED else ICON_SCALE_DEFAULT
+        }
+    }
     SwipeToDismissBox(
         state = swipeToDismissState,
         modifier = Modifier.fillMaxSize(),
@@ -106,6 +146,7 @@ fun ShoppingListRow(
                         modifier = Modifier
                             .fillMaxSize()
                             .background(Color.Red)
+                            .graphicsLayer(scaleX = iconScale, scaleY = iconScale)
                             .wrapContentSize(Alignment.CenterEnd)
                             .padding(rowPadding),
                         tint = Color.White
@@ -144,6 +185,7 @@ fun ShoppingListRow(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = item.name,
+                        modifier = Modifier.graphicsLayer(textScale),
                         style = if (item.isBought) {
                             MaterialTheme.typography.titleMedium.copy(
                                 textDecoration = TextDecoration.LineThrough,
@@ -170,7 +212,8 @@ fun ShoppingListRow(
 
             Checkbox(
                 checked = item.isBought,
-                onCheckedChange = onCheckChanged
+                onCheckedChange = onCheckChanged,
+                modifier = Modifier.graphicsLayer(checkBoxScale)
             )
         }
     }
